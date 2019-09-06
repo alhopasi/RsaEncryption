@@ -1,16 +1,24 @@
 # Määrittelydokumentti
 
+Projektin tavoitteena on luoda toimiva RSA-avainpari generaattori, sekä mahdollisuus käyttää RSA-avaimia salauksen luomiseen ja purkamiseen tekstille.
+
 ## Algoritmit ja tietorakenteet
 
-- (mitä algoja ja tietorakenteita toteutetaan)
+- Toteutetaan alkuluku, joka voi olla *hyvin hyvin suuri* ja tietyn pituinen bitteinä.
+- Ehkä jotain muutakin salaukseen?
 
 ## Ongelma
 
-- Rsa-salauksen luominen sekä purkaminen käyttäjän syötteelle avaimella, joka luetaan tiedostosta.
+- Uusien RSA-avainten luominen: Yksityinen sekä julkinen
+- Avainten käyttäminen tekstin salaamiseen
+- (suolaaminen?)
 
 ## Ohjelman syötteet
 
-- (mitä syötteitä ohjelmalle annetaan, miten niitä käytetään)
+- Valitaan, halutaanko luoda rsa-avainpari, vai käyttää jo luotua.
+- Salataanko vai puretaanko?
+- Mikä on avaimen nimi (syötä avain suoraan?)
+- Teksti mikä salataan / puretaan
 
 ## Aika- ja tilavaativuudet
 
@@ -18,4 +26,5 @@
 
 ## Lähteet
 
-- ei ole.
+- https://www.di-mgt.com.au/rsa_alg.html
+- http://www.programming-algorithms.net/article/43434/Greatest-common-divisor
