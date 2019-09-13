@@ -12,6 +12,7 @@ public class KeyGenerator {
     /**
      * Generates the public and private keys.
      * @param k = bit-size of the key.
+     * @return pair, where key is the PublicKey and value is the PrivateKey.
      */
     public Pair<PublicKey, PrivateKey> generateKeys(int k) {
         BigInteger p;
@@ -31,7 +32,7 @@ public class KeyGenerator {
             }
         }
         d = extendedEuclideanAlgorithm(totient, e);
-        Pair<PublicKey, PrivateKey> keys = new Pair(new PublicKey(n, e), new PrivateKey(n, d));
+        Pair<PublicKey, PrivateKey> keys = new Pair<>(new PublicKey(n, e), new PrivateKey(n, d));
         return keys;
     }
 
