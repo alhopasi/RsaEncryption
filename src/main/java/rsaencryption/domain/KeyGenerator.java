@@ -1,46 +1,69 @@
-package project.rsaencryption;
+package rsaencryption.domain;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Random;
+import javafx.util.Pair;
 
+/**
+ * Key generator for RSA public and private keys.
+ */
 public class KeyGenerator {
 
-    public KeyGenerator() {
-    }
-
     /**
-     * Generates the public and private keys
-     *
-     * @param k = bit-size of the key
+     * Generates the public and private keys.
+     * @param k = bit-size of the key.
      */
-    public void generateKeys(int k) {
-        BigInteger p = generatePrime(k / 2);
-        BigInteger q = generatePrime(k - k / 2);
-
-        BigInteger n = p.multiply(q);
-
-        BigInteger phi = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
-        System.out.println("phi: " + phi);
+    public Pair<PublicKey, PrivateKey> generateKeys(int k) {
+        BigInteger p;
+        BigInteger q;
+        BigInteger n;
+        BigInteger totient;
         BigInteger e = new BigInteger("65537");
+        BigInteger d;
 
-        BigInteger d = gcd(e, phi);
-        
-        System.out.println(d);
-
+        while (true) {
+            p = generatePrime(k / 2);
+            q = generatePrime(k - k / 2);
+            n = p.multiply(q);
+            totient = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
+            if (gcd(e, totient).compareTo(BigInteger.ONE) == 0) {
+                break;
+            }
+        }
+        d = extendedEuclideanAlgorithm(totient, e);
+        Pair<PublicKey, PrivateKey> keys = new Pair(new PublicKey(n, e), new PrivateKey(n, d));
+        return keys;
     }
 
-    /**
-     * Generates a random prime of certain bitlength
-     *
-     * @param bitLength the prime bitlength length wanted
-     * @return a prime
-     */
+    private BigInteger extendedEuclideanAlgorithm(BigInteger n, BigInteger m) {
+        if (m.compareTo(n) > 0) {
+            BigInteger a = n;
+            n = m;
+            m = a;
+        }
+        if (m.compareTo(BigInteger.ONE) == 0) {
+            return BigInteger.ONE;
+        }
+        BigInteger d = BigInteger.ONE.add(n.multiply(m.subtract(extendedEuclideanAlgorithm(n.mod(m), m)))).divide(m);
+        return d;
+    }
+
+    private BigInteger gcd(BigInteger a, BigInteger b) {
+        while (b.compareTo(BigInteger.ZERO) != 0) {
+            BigInteger tmp = a;
+            //System.out.println("tmp: " + tmp + "  a: " + a + "  b: " + b);
+            a = b;
+            b = tmp.mod(b);
+        }
+        return a;
+    }
+
     private BigInteger generatePrime(int bitLength) {
-
         return new BigInteger(bitLength, 13, new Random());
+    }
+    
+    /*private BigInteger generatePrime(int bitLength) {
 
-        /*
         // Tässä menee jokin pieleen bitLengthin kanssa, muuten tekee kyllä alkuluvun.
         
         SecureRandom random = new SecureRandom();
@@ -79,7 +102,6 @@ public class KeyGenerator {
                 return prime;
             }
         }
-         */
     }
 
     private boolean isPrime(BigInteger n) {
@@ -104,27 +126,5 @@ public class KeyGenerator {
         }
         return true;
     }
-
-    private BigInteger gcd(BigInteger a, BigInteger b) {
-
-        while (b.compareTo(BigInteger.ZERO) != 0) {
-            BigInteger tmp = a;
-            System.out.println("tmp: " + tmp + "  a: " + a + "  b: " + b);
-            a = b;
-            b = tmp.mod(b);
-        }
-        return a;
-    }
-
-    BigInteger r;
-
-    /*while (a.compareTo (BigInteger.ZERO) 
-        > 0) {
-            r = b.mod(a);
-        System.out.println("r: " + r + "  a: " + a + "  b: " + b);
-        b = a;
-        a = r;
-    }
-    return b ;
-}*/
+     */
 }

@@ -5,17 +5,29 @@ Työ on toteutettu kurssilla Aineopintojen harjoitustyö: Tietorakenteet ja algo
 
 ## Dokumentaatio
 
-
 [Määrittelydokumentti](dokumentaatio/maarittely.md)
 
-Toteutusdokumentti
+Toteutusdokumentti *(tulossa myöhemmin)*
 
-Testausdokumentti
+Testausdokumentti *(tulossa myöhemmin)*
 
-Käyttöohje
+Käyttöohje *(tulossa myöhemmin)*
 
 ## Viikkoraportit
 
 [Viikkoraportti1](dokumentaatio/viikkoraportti1.md)
+[Viikkoraportti2](dokumentaatio/viikkoraportti2.md)
 
 ## Suoritettava ohjelma
+
+*(tulossa myöhemmin)*
+
+## Komennot
+
+- mvn install  (tee tämä ennen muita)
+
+- Checkstyle: mvn jxr:jxr checkstyle:checkstyle
+- Jacoco: mvn test:jacoco
+
+- Compile: mvn compile
+- Run: java -jar target/RsaEncryption-1.0-SNAPSHOT.jar
