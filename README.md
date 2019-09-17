@@ -29,5 +29,5 @@ Käyttöohje *(tulossa myöhemmin)*
 - Checkstyle: mvn jxr:jxr checkstyle:checkstyle
 - Jacoco: mvn test:jacoco
 
-- Compile: mvn compile
+- Compile: mvn package
 - Run: java -jar target/RsaEncryption-1.0-SNAPSHOT.jar
