@@ -1,30 +1,31 @@
-# RSA-salaus
+# RSA-encryption
 
-Ohjelma, jossa voi salata tekstiä ja purkaa sen avaimen avulla. Salaukseen käytetään RSA-tekniikkaa.
-Työ on toteutettu kurssilla Aineopintojen harjoitustyö: Tietorakenteet ja algoritmit
+Program, which can create RSA-keys and use those keys to encrypt and decrypt text.
+Project is a part of course "Aineopintojen harjoitustyö: Tietorakenteet ja algroritmit"
 
-## Dokumentaatio
+## Documentation
 
-[Määrittelydokumentti](dokumentaatio/maarittely.md)
+[Project definition](documentation/definition.md)
 
-Toteutusdokumentti *(tulossa myöhemmin)*
+Implementation documentation *(coming later)*
 
-Testausdokumentti *(tulossa myöhemmin)*
+Testing documentation *(comint later)*
 
-Käyttöohje *(tulossa myöhemmin)*
+User Guide *(coming later)*
 
-## Viikkoraportit
+## Weekly reports
 
-[Viikkoraportti1](dokumentaatio/viikkoraportti1.md)
-[Viikkoraportti2](dokumentaatio/viikkoraportti2.md)
+[Week 1](documentation/weekreport1.md)
+[Week 2](documentation/weekreport2.md)
+[Week 3](documentation/weekreport3.md)
 
-## Suoritettava ohjelma
+## Compiled program
 
-*(tulossa myöhemmin)*
+*(coming later)*
 
-## Komennot
+## How to run on command line
 
-- mvn install  (tee tämä ennen muita)
+- mvn install  (do this first)
 
 - Checkstyle: mvn jxr:jxr checkstyle:checkstyle
 - Jacoco: mvn test:jacoco
