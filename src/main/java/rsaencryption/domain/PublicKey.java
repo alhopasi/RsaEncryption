@@ -2,6 +2,7 @@ package rsaencryption.domain;
 
 import rsaencryption.utils.Utils;
 import java.math.BigInteger;
+import rsaencryption.utils.Padding;
 
 /**
  * The public key for RSA encryption.

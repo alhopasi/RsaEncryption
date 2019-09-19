@@ -9,62 +9,139 @@ import java.util.Arrays;
 public class Padding {
 
     /**
-     * Adds OAEP padding to the message.
-     * OAEP also hashes the message.
+     * Adds OAEP padding to the message. OAEP also hashes the message.
+     *
+     * Didn't get SHA-256 to work, ignore this.
+     *
      * @param message String to be padded.
      * @return OAEP Padded message.
      */
     public static String oaep(String message) {
-        int g = 2048;
-        int h = 0;
+        int g = 256;
         byte[] r = new byte[2048 / 8];
         SecureRandom random = new SecureRandom();
         random.nextBytes(r);
-
-        int byteSize = (g - message.getBytes().length * 8) / 8;
-        String zeros = "";
-        for (int i = 0; i < byteSize; i++) {
-            zeros += "0";
-        }
-        message += zeros;
-        System.out.println("bitSize: " + byteSize * 8 + "  Zeros bitsize: " + zeros.getBytes().length * 8 + "  Message bitSize: " + message.getBytes().length * 8);
-        System.out.println("message with padding: " + message);
-
-        byte[] messagebytes = message.getBytes();
-        System.out.println(Arrays.toString(messagebytes));
-        System.out.println(messagebytes.length);
+        String paddedMessage = pad(message, g);
+        byte[] messagebytes = paddedMessage.getBytes();
         byte[] gr = SHA256(r);
-        System.out.println(Arrays.toString(gr));
-        System.out.println(gr.length);
-        byte[] messagebytesgr = new byte[messagebytes.length];
+        byte[] x = new byte[messagebytes.length];
         for (int i = 0; i < messagebytes.length; i++) {
-            messagebytesgr[i] = (byte) (messagebytes[i] ^ gr[i]);
+            x[i] = (byte) (messagebytes[i] ^ gr[i]);
         }
-        System.out.println(Arrays.toString(messagebytesgr));
-        System.out.println(messagebytesgr.length);
-
-        byte[] hmessagebytesgr = H(messagebytesgr);
-        System.out.println(Arrays.toString(hmessagebytesgr));
-        System.out.println(hmessagebytesgr.length);
+        byte[] hmessagebytesgr = SHA256(x);
         byte[] messagebytesgrrh = new byte[messagebytes.length];
         for (int i = 0; i < messagebytes.length; i++) {
             messagebytesgrrh[i] = (byte) (r[i] ^ hmessagebytesgr[i]);
         }
-        System.out.println(Arrays.toString(messagebytesgrrh));
-        System.out.println(messagebytesgrrh.length);
-        return message;
+        return new String(messagebytesgrrh);
+    }
+
+    private static String pad(String message, int g) {
+        int k1 = (g - message.getBytes().length * 8);
+        String zeros = "";
+        for (int i = 0; i < k1 / 8; i++) {
+            zeros += "0";
+        }
+        String message2 = message + zeros;
+        System.out.println("bitSize: " + k1 + "  Zeros bitsize: " + zeros.getBytes().length * 8 + "  Message bitSize: " + message.getBytes().length * 8);
+        System.out.println("message with padding: \n" + message2);
+        return message2;
     }
 
     private static byte[] SHA256(byte[] bytes) {
-        int h0 = 0x6a09e667;
-        int h1 = 0xbb67ae85;
-        int h2 = 0x3c6ef372;
-        int h3 = 0xa54ff53a;
-        int h4 = 0x510e527f;
-        int h5 = 0x9b05688c;
-        int h6 = 0x1f83d9ab;
-        int h7 = 0x5be0cd19;
+        int[] h0 = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
 
+        int[] k = initK();
+
+        byte[][] chunks = bytesIntoChunks(bytes, bytes.length * 8 / 512, 512 / 8);
+
+        for (int i = 0; i < chunks.length; i++) {
+            int[] w = new int[64];
+            for (int j = 0; j < 16; j++) {
+                w[j] = byteArrayToInt(chunks[i], j);
+            }
+
+            for (int j = 16; j < 64; j++) {
+                int s0 = (rotateRight(w[j - 15], 7)) ^ (rotateRight(w[j - 15], 18)) ^ (w[j - 15] >>> 3);
+                int s1 = (rotateRight(w[j - 2], 17)) ^ (rotateRight(w[j - 2], 19)) ^ (w[j - 2] >>> 10);
+                w[j] = w[j - 16] + s0 + w[j - 7] + s1;
+            }
+            doMoreHash(h0, k, w);
+        }
+
+        byte[] hash = createHashBytes(h0);
+
+        return hash;
+    }
+
+    private static byte[] createHashBytes(int[] h0) {
+        byte[] h0bytes = intToByteArray(h0[0]);
+        byte[] h1bytes = intToByteArray(h0[1]);
+        byte[] h2bytes = intToByteArray(h0[2]);
+        byte[] h3bytes = intToByteArray(h0[3]);
+        byte[] h4bytes = intToByteArray(h0[4]);
+        byte[] h5bytes = intToByteArray(h0[5]);
+        byte[] h6bytes = intToByteArray(h0[6]);
+        byte[] h7bytes = intToByteArray(h0[7]);
+
+        byte[] hash = new byte[32];
+
+        for (int i = 0; i < 4; i++) {
+            hash[0 + i] = h0bytes[i];
+            hash[4 + i] = h1bytes[i];
+            hash[8 + i] = h2bytes[i];
+            hash[12 + i] = h3bytes[i];
+            hash[16 + i] = h4bytes[i];
+            hash[20 + i] = h5bytes[i];
+            hash[24 + i] = h6bytes[i];
+            hash[28 + i] = h7bytes[i];
+        }
+        return hash;
+    }
+
+    private static void doMoreHash(int[] h0, int[] k, int[] w) {
+        int a = h0[0];
+        int b = h0[1];
+        int c = h0[2];
+        int d = h0[3];
+        int e = h0[4];
+        int f = h0[5];
+        int g = h0[6];
+        int h = h0[7];
+
+        hashRotation(a, b, c, d, e, f, g, h, k, w);
+
+        h0[0] += a;
+        h0[1] += b;
+        h0[2] += c;
+        h0[3] += d;
+        h0[4] += e;
+        h0[5] += f;
+        h0[6] += g;
+        h0[7] += h;
+    }
+
+    private static void hashRotation(int a, int b, int c, int d, int e, int f, int g, int h, int[] k, int[] w) {
+        for (int j = 0; j < 64; j++) {
+            int S1 = rotateRight(e, 6) ^ rotateRight(e, 11) ^ rotateRight(e, 25);
+            int ch = (e & f) | ((~e) & g);
+            int temp1 = h + S1 + ch + k[j] + w[j];
+            int S0 = rotateRight(a, 2) ^ rotateRight(a, 13) ^ rotateRight(a, 22);
+            int maj = (a & b) | (a & c) | (b & c);
+            int temp2 = S0 + maj;
+
+            h = g;
+            g = f;
+            f = e;
+            e = d + temp1;
+            d = c;
+            c = b;
+            b = a;
+            a = temp1 + temp2;
+        }
+    }
+
+    private static int[] initK() {
         int[] k = {
             0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
             0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -74,69 +151,41 @@ public class Padding {
             0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
             0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
             0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
+        return k;
+    }
 
-        /*
-        Pre-processing (Padding):
-    begin with the original message of length L bits
-    append a single '1' bit
-    append K '0' bits, where K is the minimum number >= 0 such that L + 1 + K + 64 is a multiple of 512
-    append L as a 64-bit big-endian integer, making the total post-processed length a multiple of 512 bits
+    private static byte[][] bytesIntoChunks(byte[] bytes, int firstBytes, int secondBytes) {
+        byte[][] chunks = new byte[firstBytes][secondBytes];
+        for (int i = 0; i < chunks.length; i++) {
+            for (int j = 0; j < chunks[i].length; j++) {
+                chunks[i][j] = bytes[i * 512 / 8 + j];
+            }
+        }
+        return chunks;
+    }
 
-    Process the message in successive 512-bit chunks:
-    break message into 512-bit chunks
-    for each chunk
-        create a 64-entry message schedule array w[0..63] of 32-bit words
-        (The initial values in w[0..63] don't matter, so many implementations zero them here)
-        copy chunk into first 16 words w[0..15] of the message schedule array
+    private static byte[] intToByteArray(int a) {
+        byte[] ret = new byte[4];
+        ret[3] = (byte) (a & 0xFF);
+        ret[2] = (byte) ((a >> 8) & 0xFF);
+        ret[1] = (byte) ((a >> 16) & 0xFF);
+        ret[0] = (byte) ((a >> 24) & 0xFF);
+        return ret;
+    }
 
-        Extend the first 16 words into the remaining 48 words w[16..63] of the message schedule array:
-        for i from 16 to 63
-            s0 := (w[i-15] rightrotate  7) xor (w[i-15] rightrotate 18) xor (w[i-15] rightshift  3)
-            s1 := (w[i- 2] rightrotate 17) xor (w[i- 2] rightrotate 19) xor (w[i- 2] rightshift 10)
-            w[i] := w[i-16] + s0 + w[i-7] + s1
+    private static int byteArrayToInt(byte[] b, int startingIndex) {
+        int value = 0;
+        for (int i = startingIndex; i < startingIndex + 4; i++) {
+            int shift = (4 - 1 - i) * 8;
+            value += (b[i] & 0x000000FF) << shift;
+        }
+        return value;
+    }
 
-        Initialize working variables to current hash value:
-        a := h0
-        b := h1
-        c := h2
-        d := h3
-        e := h4
-        f := h5
-        g := h6
-        h := h7
-
-        Compression function main loop:
-        for i from 0 to 63
-            S1 := (e rightrotate 6) xor (e rightrotate 11) xor (e rightrotate 25)
-            ch := (e and f) xor ((not e) and g)
-            temp1 := h + S1 + ch + k[i] + w[i]
-            S0 := (a rightrotate 2) xor (a rightrotate 13) xor (a rightrotate 22)
-            maj := (a and b) xor (a and c) xor (b and c)
-            temp2 := S0 + maj
-
-            h := g
-            g := f
-            f := e
-            e := d + temp1
-            d := c
-            c := b
-            b := a
-            a := temp1 + temp2
-
-        Add the compressed chunk to the current hash value:
-        h0 := h0 + a
-        h1 := h1 + b
-        h2 := h2 + c
-        h3 := h3 + d
-        h4 := h4 + e
-        h5 := h5 + f
-        h6 := h6 + g
-        h7 := h7 + h
-
-        Produce the final hash value (big-endian):
-        digest := hash := h0 append h1 append h2 append h3 append h4 append h5 append h6 append h7
-         */
-        return bytes;
+    private static int rotateRight(int word, int bitsAmount) {
+        int tot_bits = 32;
+        int c = (word >> bitsAmount) | (word << (tot_bits - bitsAmount));
+        return c;
     }
 
     private static byte[] H(byte[] bytes) {
