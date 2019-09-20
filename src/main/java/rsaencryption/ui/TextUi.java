@@ -86,7 +86,7 @@ public class TextUi {
         if (!Validators.checkValidSaveInput(keyName)) {
             return;
         }
-        io.saveFiles(folder, keyName, publicKey, privateKey);
+        io.saveKeys(folder, keyName, publicKey, privateKey);
     }
 
     private void encrypt() {

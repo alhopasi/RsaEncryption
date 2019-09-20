@@ -52,7 +52,7 @@
                 <version>0.8.3</version>
                 <configuration>
                     <excludes>
-                        <exclude></exclude>
+                      <exclude>rsaencryption/ui/*</exclude>
                     </excludes>
                 </configuration>
                 <executions>

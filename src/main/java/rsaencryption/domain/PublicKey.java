@@ -2,6 +2,7 @@ package rsaencryption.domain;
 
 import rsaencryption.utils.Utils;
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  * The public key for RSA encryption.
@@ -41,5 +42,25 @@ public class PublicKey {
     public String toString() {
         return Utils.decimalToHex(n) + "\n" + Utils.decimalToHex(e);
     }
-    
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PublicKey other = (PublicKey) obj;
+        if (!Objects.equals(this.e, other.e)) {
+            return false;
+        }
+        if (!Objects.equals(this.n, other.n)) {
+            return false;
+        }
+        return true;
+    }
 }

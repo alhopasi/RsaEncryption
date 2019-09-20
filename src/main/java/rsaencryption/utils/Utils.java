@@ -50,6 +50,24 @@ public class Utils {
         String message = hexToString(hex);
         return message;
     }
+    
+    /**
+     * Converts a hex String into integer.
+     * @param hex the String to be converted.
+     * @return Integer representation of the hex.
+     */
+    public static BigInteger hexToDecimal(String hex) {
+        BigInteger sixteen = new BigInteger("16");
+        String digits = "0123456789ABCDEF";
+        hex = hex.toUpperCase();
+        BigInteger value = BigInteger.ZERO;
+        for (int i = 0; i < hex.length(); i++) {
+            char c = hex.charAt(i);
+            BigInteger intValue = getValueOfHex(c);
+            value = value.multiply(sixteen).add(intValue);
+        }
+        return value;
+    }
 
     private static String stringToHex(String message) {
         String hex = "";
@@ -83,24 +101,6 @@ public class Utils {
             value = value / 16;
         }
         return hex;
-    }
-
-    /**
-     * Converts a hex String into integer.
-     * @param hex the String to be converted.
-     * @return Integer representation of the hex.
-     */
-    public static BigInteger hexToDecimal(String hex) {
-        BigInteger sixteen = new BigInteger("16");
-        String digits = "0123456789ABCDEF";
-        hex = hex.toUpperCase();
-        BigInteger value = BigInteger.ZERO;
-        for (int i = 0; i < hex.length(); i++) {
-            char c = hex.charAt(i);
-            BigInteger intValue = getValueOfHex(c);
-            value = value.multiply(sixteen).add(intValue);
-        }
-        return value;
     }
 
     private static BigInteger getValueOfHex(char hex) {

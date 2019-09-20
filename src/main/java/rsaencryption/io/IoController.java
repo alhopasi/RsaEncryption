@@ -40,7 +40,7 @@ public class IoController {
             System.out.println("Private key loaded successfully");
             return new PrivateKey(Utils.hexToDecimal(first), Utils.hexToDecimal(second));
         } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("ERROR: " + e.getMessage());
             return null;
         }
     }
@@ -60,26 +60,27 @@ public class IoController {
             System.out.println("Public key loaded successfully");
             return new PublicKey(Utils.hexToDecimal(first), Utils.hexToDecimal(second));
         } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("ERROR: " + e.getMessage());
             return null;
         }
     }
 
-    public void saveFiles(File folder, String keyName, PublicKey publicKey, PrivateKey privateKey) {
+    public boolean saveKeys(File folder, String keyName, PublicKey publicKey, PrivateKey privateKey) {
         try (FileWriter fileWriter = new FileWriter(folder + "/" + keyName + ".public")) {
             fileWriter.write(publicKey.toString());
         } catch (IOException e) {
             System.out.println("ERROR: " + e.getMessage());
-            return;
+            return false;
         }
-        try (FileWriter fileWriter2 = new FileWriter(folder + "/" + keyName + ".private")) {
-            fileWriter2.write(privateKey.toString());
+        try (FileWriter fileWriter = new FileWriter(folder + "/" + keyName + ".private")) {
+            fileWriter.write(privateKey.toString());
         } catch (IOException e) {
             System.out.println("ERROR: " + e.getMessage());
-            return;
+            return false;
         }
         System.out.println("Public key saved to " + folder.getAbsolutePath() + "/" + keyName + ".public");
         System.out.println("Private key saved to " + folder.getAbsolutePath() + "/" + keyName + ".private");
+        return true;
     }
 
     public String readPlainText() {

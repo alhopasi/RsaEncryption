@@ -2,6 +2,7 @@ package rsaencryption.domain;
 
 import rsaencryption.utils.Utils;
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  * Private key for RSA encryption.
@@ -42,4 +43,24 @@ public class PrivateKey {
         return Utils.decimalToHex(n) + "\n" + Utils.decimalToHex(d);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PrivateKey other = (PrivateKey) obj;
+        if (!Objects.equals(this.n, other.n)) {
+            return false;
+        }
+        if (!Objects.equals(this.d, other.d)) {
+            return false;
+        }
+        return true;
+    }
 }

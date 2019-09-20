@@ -54,7 +54,7 @@ public class Validators {
 
     /**
      * Checks that public key is not null
-     *
+     * 
      * @param publicKey
      * @return true if public key exists
      */
@@ -66,15 +66,6 @@ public class Validators {
         return true;
     }
     
-    public static boolean checkValidKey(String hex) {
-        if (!hex.matches("[0-9A-F]+")) {
-            System.out.println("String: " + hex);
-            System.out.println("ERROR: Key is not in hex format: 0-9,A-F");
-            return false;
-        }
-        return true;
-    }
-
     /**
      * Checks that private key is not null
      *
@@ -88,15 +79,30 @@ public class Validators {
         }
         return true;
     }
+    
+    /**
+     * Checks that a string (key) is in hex format
+     * 
+     * @param hex The string (key)
+     * @return Returns true if the string is a valid hex.
+     */
+    public static boolean checkValidKey(String hex) {
+        if (!hex.matches("[0-9A-F]+")) {
+            System.out.println("ERROR: Key is not in hex format: 0-9,A-F");
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Checks that hex is correct length and includes correct characters when trying to decrypt
+     * 
      * @param hex Hex that is going to be decrypted
      * @return true if hex is valid and correct length
      */
     public static boolean checkValidHexInputOnDecrypt(String hex) {
-        if (hex.length() != 512) {
-            System.out.println("ERROR: Input is not correct length (512 letters)");
+        if (hex.length() > 512 || hex.length() < 511) {
+            System.out.println("ERROR: Input is not correct length");
             return false;
         }
         if (!hex.matches("[0-9A-F]+")) {
