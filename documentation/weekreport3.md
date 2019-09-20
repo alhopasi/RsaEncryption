@@ -3,27 +3,29 @@
 ## What's been done during the week
 
 - Familiarizing with OAEP-padding.
+- Trying to implement OAEP, failed horribly.
+- Refactoring code to Checkstyle standards.
+- Improving UI towards project goal. Save / Load system for keys. Validating inputs.
 
 ## Problems
 
 - Didn't get RSA-256 to work. Scratching that for now, as I focus on creating own data structures for RSA.
 
-## Other stuff
-
-- 
-
 ## Questions
 
-- Do I need to create own datastructures for Strings and Scanner?
+- none
 
 ## Hours used
 
 - OAEP-padding and SHA-256 6h
-- Refactoring code 2h
+- Refactoring code 4h
+- Adding save / load to UI 4h
+- More tests to new refactored code 1h
 
 ## Did I fill this weeks goals
-- Tavoitteena oli saada tehtyä toimiva RSA-avaingeneraattori. Sellainen on nyt olemassa ja sillä voi salata ja purkaa tekstiä.
+
+- Padding failed. So, no. But I made the program completed.
 
 ## Next week
 
-- Tavoitteena lisätä pehmustaminen OAEP:llä. OAEP käyttää kahta hash-algoritmiä, joista toiseksi valitsin SHA-256:n, toista en ole vielä valinnut. Jos nämä saisi toimiviksi niin sitten voi aloittaa omien tietorakenteiden rakentamista.
+- Goal is to start working on my own datastructure for BigInteger.

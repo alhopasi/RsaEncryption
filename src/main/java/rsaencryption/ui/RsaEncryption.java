@@ -1,10 +1,7 @@
 package rsaencryption.ui;
 
 import java.util.Scanner;
-import javafx.util.Pair;
-import rsaencryption.domain.KeyGenerator;
-import rsaencryption.domain.PrivateKey;
-import rsaencryption.domain.PublicKey;
+import rsaencryption.io.IoController;
 
 /**
  * RSA-encryption
@@ -20,7 +17,8 @@ public class RsaEncryption {
      */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        TextUi ui = new TextUi(scanner);
+        IoController io = new IoController(scanner);
+        TextUi ui = new TextUi(io);
         ui.run();
         
     }

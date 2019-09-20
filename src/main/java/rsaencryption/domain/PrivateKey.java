@@ -31,15 +31,15 @@ public class PrivateKey {
     public String decrypt(String hexed) {
         BigInteger encrypted = Utils.hexToDecimal(hexed);
         
-        //System.out.println("encrypted bit size: " + encrypted.bitLength());
-        //System.out.println("encrypted: " + encrypted);
-        
         BigInteger decrypted = encrypted.modPow(d, n);
         
-        //System.out.println("decrypted bit size: " + decrypted.bitLength());
-        //System.out.println("decrypted: " + decrypted);
         String message = Utils.decimalToString(decrypted);
         return message;
+    }
+    
+    @Override
+    public String toString() {
+        return Utils.decimalToHex(n) + "\n" + Utils.decimalToHex(d);
     }
 
 }

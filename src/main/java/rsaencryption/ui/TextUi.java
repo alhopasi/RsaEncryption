@@ -1,17 +1,20 @@
 package rsaencryption.ui;
 
-import java.util.Scanner;
+import java.io.File;
 import javafx.util.Pair;
 import rsaencryption.domain.KeyGenerator;
 import rsaencryption.domain.PrivateKey;
 import rsaencryption.domain.PublicKey;
+import rsaencryption.io.IoController;
+import rsaencryption.utils.Validators;
+import static rsaencryption.utils.Validators.checkKeysFolderExists;
 
 /**
  * User inteface for the RSA encryption system.
  */
 public class TextUi {
 
-    private final Scanner scanner;
+    private final IoController io;
     private final int bitLength;
     private PublicKey publicKey;
     private PrivateKey privateKey;
@@ -19,70 +22,101 @@ public class TextUi {
     /**
      * Interface for the RSA encryption system.
      *
-     * @param scanner Scanner to handle input.
+     * @param io IoController to handle all io operations.
      */
-    public TextUi(Scanner scanner) {
-        this.scanner = scanner;
+    public TextUi(IoController io) {
+        this.io = io;
         bitLength = 2048;
     }
 
     /**
-     * Starts the scanner.
+     * Starts the program.
      */
     public void run() {
         printTitle();
         while (true) {
             printCommands();
-            System.out.print("Command: ");
-            String input = scanner.nextLine();
+            String input = io.readInput("Command: ");
 
             if (input.equals("q")) {
                 System.out.println("ok, thx, bye.");
                 break;
             } else if (input.equals("g")) {
-                keyOptions();
+                generateKeys();
+            } else if (input.equals("e")) {
+                encrypt();
+            } else if (input.equals("d")) {
+                decrypt();
+            } else if (input.equals("s")) {
+                save();
+            } else if (input.equals("l")) {
+                load();
             } else {
-                System.out.println("Work in progress");
+                System.out.println("Unknown command");
             }
         }
     }
 
-    private void keyOptions() {
-        generateKeys();
-        String plaintext = readPlainText();
+    private void load() {
+        File folder = checkKeysFolderExists();
+
+        String keyName = io.readInput("Give name of the key(s) to load: ");
+        if (!Validators.checkValidKeyNameInput(keyName)) {
+            return;
+        }
+        if (!keyName.contains(".")) {
+            publicKey = io.loadPublicKey(folder, keyName + ".public");
+            privateKey = io.loadPrivateKey(folder, keyName + ".private");
+        } else {
+            if (keyName.matches("[a-zA-Z]+.public$")) {
+                publicKey = io.loadPublicKey(folder, keyName);
+            } else {
+                privateKey = io.loadPrivateKey(folder, keyName);
+            }
+        }
+    }
+
+    private void save() {
+        if (!Validators.checkPublicKey(publicKey) || !Validators.checkPrivateKey(privateKey)) {
+            return;
+        }
+        File folder = Validators.checkKeysFolderExists();
+
+        String keyName = io.readInput("Give name for the keys: ");
+        if (!Validators.checkValidSaveInput(keyName)) {
+            return;
+        }
+        io.saveFiles(folder, keyName, publicKey, privateKey);
+    }
+
+    private void encrypt() {
+        if (!Validators.checkPublicKey(publicKey)) {
+            return;
+        }
+        String plaintext = io.readPlainText();
         if (plaintext.isEmpty()) {
             return;
         }
-        String crypted = encrypt(plaintext);
-        decrypt(crypted);
-    }
-
-    private void decrypt(String crypted) {
-        System.out.println("Decrypting...");
-        String message = privateKey.decrypt(crypted);
-        System.out.println("Decrypted plaintext: " + message);
-    }
-
-    private String encrypt(String plaintext) {
         System.out.println("Encrypting...");
         String crypted = publicKey.encrypt(plaintext);
         System.out.println("Encrypted: " + crypted);
-        System.out.println("");
-
-        return crypted;
     }
 
-    private String readPlainText() {
-        System.out.print("Enter input: ");
-        String plaintext = scanner.nextLine();
-        if (plaintext.length() > 214) {
-            System.out.println("Input must be less than 215 characters.");
-            return "";
-        } else if (plaintext.length() == 0) {
-            System.out.println("Input can not be empty");
-            return "";
+    private void decrypt() {
+        if (!Validators.checkPrivateKey(privateKey)) {
+            return;
         }
-        return plaintext;
+        String crypted = io.readInput("Enter input: ");
+        if (!Validators.checkValidHexInputOnDecrypt(crypted)) {
+            return;
+        }
+        System.out.println("Decrypting...");
+        try {
+            String message = privateKey.decrypt(crypted);
+            System.out.println("Decrypted plaintext: " + message);
+        } catch (Exception e) {
+            System.out.println("ERROR: Something went horribly wrong! (decrypting failed)");
+        }
     }
 
     private void generateKeys() {
@@ -94,12 +128,38 @@ public class TextUi {
         privateKey = keys.getValue();
 
         System.out.println("Keys generated");
-        System.out.println("");
     }
 
     private void printCommands() {
-        System.out.println("g - generate new key and enter input to encrypt");
+        printKeyInfo();
+
+        System.out.println("");
+        System.out.println("g - generate new keys");
+        System.out.println("e - encrypt a text");
+        System.out.println("d - decrypt a text");
+        System.out.println("s - save keys");
+        System.out.println("l - load keys");
         System.out.println("q - quit");
+    }
+
+    private void printKeyInfo() {
+        String pu = "";
+        String pi = "";
+        String no = "no keys";
+        if (publicKey != null) {
+            pu = "Public key";
+            no = "";
+        }
+        if (privateKey != null) {
+            if (publicKey != null) {
+                pu = pu.concat(", ");
+            }
+            pi = "Private key";
+            no = "";
+        }
+        System.out.println("");
+        System.out.println("LOADED: " + pu + pi + no);
+
     }
 
     private void printTitle() {
@@ -108,7 +168,5 @@ public class TextUi {
         System.out.println("****  R S A  ****");
         System.out.println("****         ****");
         System.out.println("*****************");
-        System.out.println("");
     }
-
 }

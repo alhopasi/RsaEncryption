@@ -23,12 +23,12 @@ public class Padding {
         random.nextBytes(r);
         String paddedMessage = pad(message, g);
         byte[] messagebytes = paddedMessage.getBytes();
-        byte[] gr = SHA256(r);
+        byte[] gr = sha256(r);
         byte[] x = new byte[messagebytes.length];
         for (int i = 0; i < messagebytes.length; i++) {
             x[i] = (byte) (messagebytes[i] ^ gr[i]);
         }
-        byte[] hmessagebytesgr = SHA256(x);
+        byte[] hmessagebytesgr = sha256(x);
         byte[] messagebytesgrrh = new byte[messagebytes.length];
         for (int i = 0; i < messagebytes.length; i++) {
             messagebytesgrrh[i] = (byte) (r[i] ^ hmessagebytesgr[i]);
@@ -48,11 +48,9 @@ public class Padding {
         return message2;
     }
 
-    private static byte[] SHA256(byte[] bytes) {
+    private static byte[] sha256(byte[] bytes) {
         int[] h0 = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
-
         int[] k = initK();
-
         byte[][] chunks = bytesIntoChunks(bytes, bytes.length * 8 / 512, 512 / 8);
 
         for (int i = 0; i < chunks.length; i++) {
@@ -69,33 +67,18 @@ public class Padding {
             doMoreHash(h0, k, w);
         }
 
-        byte[] hash = createHashBytes(h0);
-
-        return hash;
+        return createHashBytes(h0);
     }
 
     private static byte[] createHashBytes(int[] h0) {
-        byte[] h0bytes = intToByteArray(h0[0]);
-        byte[] h1bytes = intToByteArray(h0[1]);
-        byte[] h2bytes = intToByteArray(h0[2]);
-        byte[] h3bytes = intToByteArray(h0[3]);
-        byte[] h4bytes = intToByteArray(h0[4]);
-        byte[] h5bytes = intToByteArray(h0[5]);
-        byte[] h6bytes = intToByteArray(h0[6]);
-        byte[] h7bytes = intToByteArray(h0[7]);
-
         byte[] hash = new byte[32];
-
-        for (int i = 0; i < 4; i++) {
-            hash[0 + i] = h0bytes[i];
-            hash[4 + i] = h1bytes[i];
-            hash[8 + i] = h2bytes[i];
-            hash[12 + i] = h3bytes[i];
-            hash[16 + i] = h4bytes[i];
-            hash[20 + i] = h5bytes[i];
-            hash[24 + i] = h6bytes[i];
-            hash[28 + i] = h7bytes[i];
+        
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 4; j++) {
+                hash[i * 4 + j] = intToByteArray(h0[i])[j];
+            }
         }
+        
         return hash;
     }
 
@@ -123,12 +106,12 @@ public class Padding {
 
     private static void hashRotation(int a, int b, int c, int d, int e, int f, int g, int h, int[] k, int[] w) {
         for (int j = 0; j < 64; j++) {
-            int S1 = rotateRight(e, 6) ^ rotateRight(e, 11) ^ rotateRight(e, 25);
+            int s1 = rotateRight(e, 6) ^ rotateRight(e, 11) ^ rotateRight(e, 25);
             int ch = (e & f) | ((~e) & g);
-            int temp1 = h + S1 + ch + k[j] + w[j];
-            int S0 = rotateRight(a, 2) ^ rotateRight(a, 13) ^ rotateRight(a, 22);
+            int temp1 = h + s1 + ch + k[j] + w[j];
+            int s0 = rotateRight(a, 2) ^ rotateRight(a, 13) ^ rotateRight(a, 22);
             int maj = (a & b) | (a & c) | (b & c);
-            int temp2 = S0 + maj;
+            int temp2 = s0 + maj;
 
             h = g;
             g = f;
@@ -183,13 +166,9 @@ public class Padding {
     }
 
     private static int rotateRight(int word, int bitsAmount) {
-        int tot_bits = 32;
-        int c = (word >> bitsAmount) | (word << (tot_bits - bitsAmount));
+        int totalBits = 32;
+        int c = (word >> bitsAmount) | (word << (totalBits - bitsAmount));
         return c;
-    }
-
-    private static byte[] H(byte[] bytes) {
-        return bytes;
     }
 
 }

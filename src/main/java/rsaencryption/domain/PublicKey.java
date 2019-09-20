@@ -2,7 +2,6 @@ package rsaencryption.domain;
 
 import rsaencryption.utils.Utils;
 import java.math.BigInteger;
-import rsaencryption.utils.Padding;
 
 /**
  * The public key for RSA encryption.
@@ -32,14 +31,15 @@ public class PublicKey {
         //message = Padding.oaep(message);
         
         BigInteger decrypted = Utils.stringToDecimal(message);
-        
-        //System.out.println("decrypted: " + decrypted);
         BigInteger encrypted = decrypted.modPow(e, n);
-
-        //System.out.println("encrypted: " + encrypted);
-
         String hexed = Utils.decimalToHex(encrypted);
+        
         return hexed;
+    }
+    
+    @Override
+    public String toString() {
+        return Utils.decimalToHex(n) + "\n" + Utils.decimalToHex(e);
     }
     
 }

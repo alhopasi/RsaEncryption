@@ -11,7 +11,7 @@ Implementation documentation *(coming later)*
 
 Testing documentation *(comint later)*
 
-User Guide *(coming later)*
+[User Guide](documentation/userguide.md)
 
 ## Weekly reports
 
