@@ -20,6 +20,6 @@ public class RsaEncryption {
         IoController io = new IoController(scanner);
         TextUi ui = new TextUi(io);
         ui.run();
-        
+
     }
 }

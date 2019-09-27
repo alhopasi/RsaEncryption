@@ -3,7 +3,7 @@ package rsaencryption.io;
 
 import java.io.File;
 import java.util.Scanner;
-import javafx.util.Pair;
+import datastructures.MyPair;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -29,7 +29,7 @@ public class IoControllerTest {
     @Test
     public void saveKeysSavesKeys() {
         KeyGenerator keyGen = new KeyGenerator();
-        Pair<PublicKey, PrivateKey> keys = keyGen.generateKeys(2048);
+        MyPair<PublicKey, PrivateKey> keys = keyGen.generateKeys(2048);
         PublicKey publicKey = keys.getKey();
         PrivateKey privateKey = keys.getValue();
         boolean test1 = io.saveKeys(new File("keys"), "test", publicKey, privateKey);
@@ -41,7 +41,7 @@ public class IoControllerTest {
     @Test
     public void loadPrivateKeyLoadsPrivateKey() {
         KeyGenerator keyGen = new KeyGenerator();
-        Pair<PublicKey, PrivateKey> keys = keyGen.generateKeys(2048);
+        MyPair<PublicKey, PrivateKey> keys = keyGen.generateKeys(2048);
         PublicKey publicKey = keys.getKey();
         PrivateKey privateKey = keys.getValue();
         io.saveKeys(new File("keys"), "test", publicKey, privateKey);
@@ -54,7 +54,7 @@ public class IoControllerTest {
     @Test
     public void loadPublicKeyLoadsPublicKey() {
         KeyGenerator keyGen = new KeyGenerator();
-        Pair<PublicKey, PrivateKey> keys = keyGen.generateKeys(2048);
+        MyPair<PublicKey, PrivateKey> keys = keyGen.generateKeys(2048);
         PublicKey publicKey = keys.getKey();
         PrivateKey privateKey = keys.getValue();
         io.saveKeys(new File("keys"), "test", publicKey, privateKey);

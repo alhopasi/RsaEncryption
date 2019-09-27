@@ -7,8 +7,6 @@ import org.junit.Test;
 
 public class UtilsTest {
     
-    
-    
     @Test
     public void hexToDecimalWorks() {
         String a = "A";

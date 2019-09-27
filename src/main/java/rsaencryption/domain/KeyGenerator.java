@@ -1,20 +1,28 @@
 package rsaencryption.domain;
 
 import java.math.BigInteger;
-import java.util.Random;
-import javafx.util.Pair;
+import datastructures.MyPair;
+import datastructures.MyRandom;
+import rsaencryption.utils.Utils;
 
 /**
  * Key generator for RSA public and private keys.
  */
 public class KeyGenerator {
 
+    MyRandom random;
+
+    public KeyGenerator() {
+        random = new MyRandom();
+    }
+    
     /**
      * Generates the public and private keys.
+     *
      * @param k = bit-size of the key.
      * @return pair, where key is the PublicKey and value is the PrivateKey.
      */
-    public Pair<PublicKey, PrivateKey> generateKeys(int k) {
+    public MyPair<PublicKey, PrivateKey> generateKeys(int k) {
         BigInteger p;
         BigInteger q;
         BigInteger n;
@@ -32,7 +40,7 @@ public class KeyGenerator {
             }
         }
         d = extendedEuclideanAlgorithm(totient, e);
-        Pair<PublicKey, PrivateKey> keys = new Pair<>(new PublicKey(n, e), new PrivateKey(n, d));
+        MyPair<PublicKey, PrivateKey> keys = new MyPair<>(new PublicKey(n, e), new PrivateKey(n, d));
         return keys;
     }
 
@@ -52,7 +60,6 @@ public class KeyGenerator {
     private BigInteger gcd(BigInteger a, BigInteger b) {
         while (b.compareTo(BigInteger.ZERO) != 0) {
             BigInteger tmp = a;
-            //System.out.println("tmp: " + tmp + "  a: " + a + "  b: " + b);
             a = b;
             b = tmp.mod(b);
         }
@@ -60,72 +67,90 @@ public class KeyGenerator {
     }
 
     private BigInteger generatePrime(int bitLength) {
-        return new BigInteger(bitLength, 13, new Random());
-    }
-    
-    /*private BigInteger generatePrime(int bitLength) {
 
-        // Tässä menee jokin pieleen bitLengthin kanssa, muuten tekee kyllä alkuluvun.
-        
-        SecureRandom random = new SecureRandom();
-        byte[] bytes = new byte[bitLength / 8];
-        random.nextBytes(bytes);
+        BigInteger prime = generatePositiveInteger(bitLength);
 
-        int res = bytes[bytes.length - 1] | 0b1;
-
-        bytes[bytes.length - 1] = (byte) res;
-
-        BigInteger prime = new BigInteger(bytes);
-
-        // if negative, turn into positive:
-        if (!prime.testBit(prime.bitLength() - 1)) {
-            prime = prime.add(BigInteger.ONE.shiftLeft(prime.bitLength()));
-        }
-
-        // Check if prime, increase by 2 if not until is.
         boolean isPrime = true;
         while (true) {
             if (!isPrime) {
                 prime = prime.add(BigInteger.valueOf(2));
                 isPrime = true;
             }
-            if (!prime.isProbablePrime(5)) {
-                isPrime = false;
-                continue;
-            }
-            
-            if (!isPrime(prime)) {
+            if (!isPrimeMillerRabin(prime, 4)) {
                 isPrime = false;
                 continue;
             } else {
-                System.out.println("PRIME FOUND: " + prime);
-                System.out.println("BitLength: " + prime.bitLength());
                 return prime;
             }
         }
     }
 
-    private boolean isPrime(BigInteger n) {
-        BigInteger two = new BigInteger("2");
-        BigInteger three = new BigInteger("3");
-        BigInteger six = new BigInteger("6");
+    private BigInteger generatePositiveInteger(int bitLength) {
+        BigInteger prime;
+        
+        byte[] bytes = random.nextArray(bitLength / 8 + 1);
+        
+        bytes[0] = 0x00;
 
-        if (n.compareTo(BigInteger.ONE) <= 0) {
-            return false;
-        } else if (n.compareTo(three) <= 3) {
-            return true;
-        } else if (n.mod(three) == three) {
+        int res = bytes[bytes.length - 1] | 0b1;
+
+        bytes[bytes.length - 1] = (byte) res;
+
+        prime = new BigInteger(bytes);
+
+        return prime;
+    }
+
+    public boolean isPrimeMillerRabin(BigInteger n, int k) {
+        BigInteger two = new BigInteger("2");
+
+        if (n.compareTo(BigInteger.ONE) <= 0 || n.compareTo(new BigInteger("4")) == 0 || n.compareTo(new BigInteger("3")) <= 0) {
             return false;
         }
 
-        BigInteger i = new BigInteger("5");
-        while (i.multiply(i).compareTo(n) <= 0) {
-            if (n.mod(i) == BigInteger.ZERO || n.mod(i.add(two)) == BigInteger.ZERO) {
+        BigInteger d = n.subtract(BigInteger.ONE);
+        while (d.mod(two) == BigInteger.ZERO) {
+            d = d.shiftRight(1);
+        }
+        for (int i = 0; i < k; i++) {
+            if (millerRabin(d, n)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean millerRabin(BigInteger d, BigInteger n) {
+        BigInteger a = randomNumberForMillerRabin(n);
+        BigInteger x = Utils.powerMod(a, d, n);
+
+        if (x.compareTo(BigInteger.ONE) == 0 || x.compareTo(n.subtract(BigInteger.ONE)) == 0) {
+            return true;
+        }
+        while (d.compareTo(n.subtract(BigInteger.ONE)) != 0) {
+            x = x.multiply(x).mod(n);
+            d = d.shiftLeft(1);
+
+            if (x.compareTo(BigInteger.ONE) == 0) {
                 return false;
             }
-            i = i.add(six);
+            if (x.compareTo(n.subtract(BigInteger.ONE)) == 0) {
+                return true;
+            }
         }
-        return true;
+        return false;
     }
-     */
+
+    private BigInteger randomNumberForMillerRabin(BigInteger n) {
+        BigInteger a;
+        while (true) {
+            a = generatePositiveInteger(n.bitLength());
+
+            if (a.compareTo(n) >= 0 || a.compareTo(BigInteger.ONE) <= 0 || a.compareTo(n.subtract(new BigInteger("2"))) > 0) {
+                continue;
+            }
+            break;
+        }
+        return a;
+    }
 }

@@ -7,7 +7,7 @@ The goal of the project is to create a working RSA-keypair generator and the pos
 - A number, which can be as long as possible.
 - For this number, possibility to use many operations.
 - Random generator, which can randomize a byte array.
-- A pair, which has objects.
+- A pair, which has two objects.
 
 ## Problem
 
@@ -22,10 +22,7 @@ These are secondary objectives. To be done if there is enough time:
 
 ## Input and output
 
-- Choose if we want to generate a new RSA-keypair or use an existing key.
-- If we use existing key, do we use private (decrypt) or public (encrypt) key.
-- Name of the key
-- Text to be encrypted
+- Check out [User Guide](./userguide.md)
 
 ## Time and Space complexity
 
@@ -39,3 +36,6 @@ These are secondary objectives. To be done if there is enough time:
 - https://security.stackexchange.com/questions/112029/should-sha-1-be-used-with-rsa-oaep
 - https://en.wikipedia.org/wiki/SHA-2
 - https://en.wikipedia.org/wiki/Exponentiation#Efficient_computation_with_integer_exponents
+- https://www.geeksforgeeks.org/primality-test-set-3-miller-rabin/
+- https://www.di-mgt.com.au/rsa_alg.html
+- https://en.wikipedia.org/wiki/Linear_congruential_generator

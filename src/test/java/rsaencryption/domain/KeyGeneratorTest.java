@@ -1,20 +1,20 @@
 package rsaencryption.domain;
 
-import javafx.util.Pair;
-import org.junit.Before;
+import datastructures.MyPair;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
 
 public class KeyGeneratorTest {
 
-    private KeyGenerator keyGen;
-    private PublicKey publicKey;
-    private PrivateKey privateKey;
-
+    private static KeyGenerator keyGen;
+    private static PublicKey publicKey;
+    private static PrivateKey privateKey;
+    
     @Before
     public void setUp() {
         keyGen = new KeyGenerator();
-        Pair<PublicKey, PrivateKey> keys = keyGen.generateKeys(2048);
+        MyPair<PublicKey, PrivateKey> keys = keyGen.generateKeys(2048);
         publicKey = keys.getKey();
         privateKey = keys.getValue();
     }

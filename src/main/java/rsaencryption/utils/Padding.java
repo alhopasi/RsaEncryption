@@ -1,7 +1,6 @@
 package rsaencryption.utils;
 
 import java.security.SecureRandom;
-import java.util.Arrays;
 
 /**
  * Class that is used to add padding into plaintext messages.

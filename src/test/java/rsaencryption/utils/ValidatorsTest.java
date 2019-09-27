@@ -1,7 +1,7 @@
 package rsaencryption.utils;
 
 import java.io.File;
-import javafx.util.Pair;
+import datastructures.MyPair;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -14,7 +14,7 @@ public class ValidatorsTest {
 
     private PublicKey publicKey;
     private PrivateKey privateKey;
-    private Pair<PublicKey, PrivateKey> keys;
+    private MyPair<PublicKey, PrivateKey> keys;
 
     @Before
     public void setUp() {

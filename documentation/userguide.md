@@ -14,11 +14,11 @@ You have several command options to use:
 ### Generating new keys
 - Enter 'g' as input and the program will generate new keys and load them.
 
-### Encrypting text
+### Encrypting a text
 - If you have a public key loaded, enter a text and the program will use the public key to encrypt it.
 - The program will print out the encrypted text in hex.
 
-### Decrypting text
+### Decrypting a text
 - If you have a private key loaded, enter a text that has been encrypted with this program.
 - The program will try to decrypt the text using the loaded private key.
 - The program will print the decrypted text.

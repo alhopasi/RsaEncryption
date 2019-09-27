@@ -1,7 +1,7 @@
 package rsaencryption.ui;
 
 import java.io.File;
-import javafx.util.Pair;
+import datastructures.MyPair;
 import rsaencryption.domain.KeyGenerator;
 import rsaencryption.domain.PrivateKey;
 import rsaencryption.domain.PublicKey;
@@ -122,7 +122,7 @@ public class TextUi {
     private void generateKeys() {
         System.out.println("Generating keys...");
         KeyGenerator keyGen = new KeyGenerator();
-        Pair<PublicKey, PrivateKey> keys = keyGen.generateKeys(bitLength);
+        MyPair<PublicKey, PrivateKey> keys = keyGen.generateKeys(bitLength);
 
         publicKey = keys.getKey();
         privateKey = keys.getValue();

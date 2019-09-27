@@ -7,9 +7,9 @@ Project is a part of course "Aineopintojen harjoitustyö: Tietorakenteet ja algr
 
 [Project definition](documentation/definition.md)
 
-Implementation documentation *(coming later)*
+[Implementation documentation](documentation/implementation.md)
 
-Testing documentation *(comint later)*
+[Testing documentation](documentation/testing.md)
 
 [User Guide](documentation/userguide.md)
 

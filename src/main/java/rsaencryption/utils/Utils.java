@@ -3,12 +3,14 @@ package rsaencryption.utils;
 import java.math.BigInteger;
 
 /**
- * Contains several static utility functions to manipulate Strings, Hexes and Integers.
+ * Contains several static utility functions to manipulate Strings, Hexes and
+ * Integers.
  */
 public class Utils {
 
     /**
      * Converts a decimal integer to hex String.
+     *
      * @param integer Decimal to be converted.
      * @return String that is hexes.
      */
@@ -29,8 +31,10 @@ public class Utils {
 
     /**
      * Converts String to hexes and then represents that as integer.
+     *
      * @param message String to be converted.
-     * @return Integer that represents the hexes that were converted from a String.
+     * @return Integer that represents the hexes that were converted from a
+     * String.
      */
     public static BigInteger stringToDecimal(String message) {
         String hex = stringToHex(message);
@@ -41,6 +45,7 @@ public class Utils {
 
     /**
      * Converts a decimal integer into hexes and then to String.
+     *
      * @param integer the decimal to be converted.
      * @return String in readable format.
      */
@@ -50,9 +55,10 @@ public class Utils {
         String message = hexToString(hex);
         return message;
     }
-    
+
     /**
      * Converts a hex String into integer.
+     *
      * @param hex the String to be converted.
      * @return Integer representation of the hex.
      */
@@ -67,6 +73,26 @@ public class Utils {
             value = value.multiply(sixteen).add(intValue);
         }
         return value;
+    }
+
+    /**
+     * Powers the given integer and the takes modulo
+     *
+     * @param x Integer given
+     * @param e The power
+     * @param m The modulo
+     * @return the result
+     */
+    public static BigInteger powerMod(BigInteger x, BigInteger e, BigInteger m) {
+        BigInteger y = x;
+        
+        for (int bit = e.bitLength() - 2; bit >= 0; bit--) {
+            y = (y.multiply(y)).mod(m);
+            if (e.testBit(bit) == true) {
+                y = y.multiply(x).mod(m);
+            }
+        }
+        return y;
     }
 
     private static String stringToHex(String message) {
