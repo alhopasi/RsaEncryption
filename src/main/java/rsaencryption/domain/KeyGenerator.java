@@ -15,7 +15,7 @@ public class KeyGenerator {
     public KeyGenerator() {
         random = new MyRandom();
     }
-    
+
     /**
      * Generates the public and private keys.
      *
@@ -76,6 +76,10 @@ public class KeyGenerator {
                 prime = prime.add(BigInteger.valueOf(2));
                 isPrime = true;
             }
+            if (!isPrimeSmallFactorTest(prime)) {
+                isPrime = false;
+                continue;
+            }
             if (!isPrimeMillerRabin(prime, 4)) {
                 isPrime = false;
                 continue;
@@ -85,11 +89,27 @@ public class KeyGenerator {
         }
     }
 
+    private boolean isPrimeSmallFactorTest(BigInteger prime) {
+        int[] primes
+                = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43,
+                    47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107,
+                    109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181,
+                    191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251};
+
+        for (int i = 0; i < primes.length; i++) {
+            if (prime.mod(new BigInteger(String.valueOf(primes[i]))).compareTo(BigInteger.ZERO) == 0) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
     private BigInteger generatePositiveInteger(int bitLength) {
         BigInteger prime;
-        
+
         byte[] bytes = random.nextArray(bitLength / 8 + 1);
-        
+
         bytes[0] = 0x00;
 
         int res = bytes[bytes.length - 1] | 0b1;
@@ -119,7 +139,7 @@ public class KeyGenerator {
         }
         return false;
     }
-    
+
     private boolean millerRabin(BigInteger d, BigInteger n) {
         BigInteger a = randomNumberForMillerRabin(n);
         BigInteger x = Utils.powerMod(a, d, n);
