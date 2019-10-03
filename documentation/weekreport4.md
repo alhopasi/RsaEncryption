@@ -9,7 +9,7 @@
 
 ## Problems
 
-- Making own powMod algorithm work really fast is a problem. Checking one key takes around 8 ms, while the algorithm in BigInteger class works in under 1 ms.
+- Making own powMod algorithm work really fast is a problem. Checking one possible prime takes around 8 ms, while the algorithm in BigInteger class works in under 1 ms.
 - Running tests takes a loooong time because of this.
 - Couldn't get padding to work.
 
