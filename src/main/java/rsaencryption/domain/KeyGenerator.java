@@ -142,6 +142,7 @@ public class KeyGenerator {
 
     private boolean millerRabin(BigInteger d, BigInteger n) {
         BigInteger a = randomNumberForMillerRabin(n);
+        //BigInteger x = a.modPow(d, n);
         BigInteger x = Utils.powerMod(a, d, n);
 
         if (x.compareTo(BigInteger.ONE) == 0 || x.compareTo(n.subtract(BigInteger.ONE)) == 0) {

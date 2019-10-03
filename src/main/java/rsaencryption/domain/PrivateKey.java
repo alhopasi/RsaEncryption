@@ -32,7 +32,8 @@ public class PrivateKey {
     public String decrypt(String hexed) {
         BigInteger encrypted = Utils.hexToDecimal(hexed);
         
-        BigInteger decrypted = encrypted.modPow(d, n);
+        //BigInteger decrypted = encrypted.modPow(d, n);
+        BigInteger decrypted = Utils.powerMod(encrypted, d, n);
         
         String message = Utils.decimalToString(decrypted);
         return message;
