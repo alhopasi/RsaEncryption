@@ -16,8 +16,12 @@ Project is a part of course "Aineopintojen harjoitustyö: Tietorakenteet ja algr
 ## Weekly reports
 
 [Week 1](documentation/weekreport1.md)
+
 [Week 2](documentation/weekreport2.md)
+
 [Week 3](documentation/weekreport3.md)
+
+[Week 4](documentation/weekreport4.md)
 
 ## Compiled program
 
@@ -27,6 +31,7 @@ Project is a part of course "Aineopintojen harjoitustyö: Tietorakenteet ja algr
 
 - mvn install  (do this first)
 
+- Test: mvn test
 - Checkstyle: mvn jxr:jxr checkstyle:checkstyle
 - Jacoco: mvn test:jacoco
 
