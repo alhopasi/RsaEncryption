@@ -15,7 +15,7 @@
 
 ## Notes
 
-- Without working padding the encrypted text is vulnerable to chosen plaintext attack from users with public key. Encrypting a key will always result into same encrypted message. With padding the message would be random, but would still be able to be decrypted.
+- Without working padding the encrypted text is vulnerable to chosen plaintext attack from users with public key. Encrypting a text will always result into same encrypted message. With padding the message would be random, but would still be able to be decrypted.
 
 ## Questions
 
