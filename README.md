@@ -23,6 +23,8 @@ Project is a part of course "Aineopintojen harjoitustyö: Tietorakenteet ja algr
 
 [Week 4](documentation/weekreport4.md)
 
+[Week 5](documentation/weekreport5.md)
+
 ## Compiled program
 
 *(coming later)*

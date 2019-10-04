@@ -15,6 +15,10 @@ This section of documentation is under construction, come back later.
 
 - How text decoding was implemented.
 
+## BigInteger
+
+- How BigInteger was implemented.
+
 ## UI
 
 - How User Interface was implemented.

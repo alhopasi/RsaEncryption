@@ -77,7 +77,7 @@ public class Utils {
 
     /**
      * Powers the given integer and the takes modulo
-     *
+     * NOTE: This will be removed and made into MyBigIntegers own method.
      * @param x Integer given
      * @param e The power
      * @param m The modulo

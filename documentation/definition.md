@@ -5,7 +5,7 @@ The goal of the project is to create a working RSA-keypair generator and the pos
 ## Algorithms and data structures
 
 - A number, which can be as long as possible.
-- For this number, possibility to use many operations.
+- For this number, possibility to use many methods.
 - Random generator, which can randomize a byte array.
 - A pair, which has two objects.
 

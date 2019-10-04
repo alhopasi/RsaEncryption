@@ -1,5 +1,6 @@
 package rsaencryption.domain;
 
+import datastructures.MyBigInteger;
 import java.math.BigInteger;
 import datastructures.MyPair;
 import datastructures.MyRandom;
@@ -101,7 +102,6 @@ public class KeyGenerator {
                 return false;
             }
         }
-        
         return true;
     }
 
@@ -121,7 +121,7 @@ public class KeyGenerator {
         return prime;
     }
 
-    public boolean isPrimeMillerRabin(BigInteger n, int k) {
+    private boolean isPrimeMillerRabin(BigInteger n, int k) {
         BigInteger two = new BigInteger("2");
 
         if (n.compareTo(BigInteger.ONE) <= 0 || n.compareTo(new BigInteger("4")) == 0 || n.compareTo(new BigInteger("3")) <= 0) {
