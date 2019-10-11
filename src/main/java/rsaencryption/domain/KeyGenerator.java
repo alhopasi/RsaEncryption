@@ -108,14 +108,10 @@ public class KeyGenerator {
     private BigInteger generatePositiveInteger(int bitLength) {
         BigInteger prime;
 
-        byte[] bytes = random.nextArray(bitLength / 8 + 1);
-
+        byte[] bytes = random.nextByteArray(bitLength / 8 + 1);
         bytes[0] = 0x00;
-
         int res = bytes[bytes.length - 1] | 0b1;
-
         bytes[bytes.length - 1] = (byte) res;
-
         prime = new BigInteger(bytes);
 
         return prime;

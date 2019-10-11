@@ -1,6 +1,5 @@
 package rsaencryption.ui;
 
-import datastructures.MyBigInteger;
 import datastructures.MyRandom;
 import java.util.Scanner;
 import rsaencryption.io.IoController;

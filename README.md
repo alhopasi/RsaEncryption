@@ -25,6 +25,7 @@ Project is a part of course "Aineopintojen harjoitustyö: Tietorakenteet ja algr
 
 [Week 5](documentation/weekreport5.md)
 
+[Week 6](documentation/weekreport6.md)
 ## Compiled program
 
 *(coming later)*
