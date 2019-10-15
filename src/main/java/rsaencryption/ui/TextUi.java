@@ -15,7 +15,7 @@ import static rsaencryption.utils.Validators.checkKeysFolderExists;
 public class TextUi {
 
     private final IoController io;
-    private final int bitLength;
+    private int bitLength;
     private PublicKey publicKey;
     private PrivateKey privateKey;
 
@@ -51,9 +51,25 @@ public class TextUi {
                 save();
             } else if (input.equals("l")) {
                 load();
+            } else if (input.equals("b")) {
+                changeBitLength();
             } else {
                 System.out.println("Unknown command");
             }
+        }
+    }
+
+    private void changeBitLength() {
+        String newBitLength = io.readInput("Give new bit size: ");
+        if (newBitLength.matches("[0-9]+")) {
+            try {
+                int bitLengthInt = Integer.valueOf(newBitLength);
+                bitLength = bitLengthInt;
+            } catch (Exception e) {
+                System.out.println("e: " + e);
+            }
+        } else {
+            System.out.println("Invalid input, cancelling...");
         }
     }
 
@@ -134,11 +150,12 @@ public class TextUi {
         printKeyInfo();
 
         System.out.println("");
-        System.out.println("g - generate new keys");
+        System.out.println("g - generate new keys (" + bitLength + " bit)");
         System.out.println("e - encrypt a text");
         System.out.println("d - decrypt a text");
         System.out.println("s - save keys");
         System.out.println("l - load keys");
+        System.out.println("b - change key bit size");
         System.out.println("q - quit");
     }
 

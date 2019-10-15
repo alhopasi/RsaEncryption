@@ -3,29 +3,50 @@ package datastructures;
 import java.util.Arrays;
 
 /**
- * UNDER CONSTRUCTION
+ * MyBigInteger is a BigInteger implementation
  *
  * @author alhopasi
  */
 public class MyBigInteger implements Comparable<MyBigInteger> {
 
-    private int[] array;
+    private final int[] array;
     private boolean[] bits;
 
-    public static MyBigInteger[] bitsSaved;
     public static final MyBigInteger ONE = new MyBigInteger("1");
     public static final MyBigInteger ZERO = new MyBigInteger("0");
 
     /**
      * Constructor to create MyBigInteger
+     *
      * @param number Value given to MyBigInteger
      */
     public MyBigInteger(String number) {
-        array = stringToIntArray(number);
+        int[] intArray = stringToIntArray(number);
+        array = removeZerosFromBeginning(intArray);
+    }
+    
+    /**
+     * Constructor to create MyBigInteger
+     *
+     * @param bytes should be bytes with value 0-9.
+     */
+    public MyBigInteger(byte[] array) {
+        int[] intArray = byteArrayToIntArray(array);
+        this.array = removeZerosFromBeginning(intArray);
+    }
+
+    /**
+     * Constructor to create MyBigInteger
+     *
+     * @param array int array, where each int should be number 0-9.
+     */
+    public MyBigInteger(int[] array) {
+        this.array = removeZerosFromBeginning(array);
     }
 
     /**
      * String representation of this MyBigIntegers value
+     *
      * @return Value of the MyBigInteger as a String
      */
     @Override
@@ -46,8 +67,9 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
     }
 
     /**
-     * Gives the MyBigIntegers value as integer.
-     * If the value is too big to fit into integer, returns -1.
+     * Gives the MyBigIntegers value as integer. If the value is too big to fit
+     * into integer, returns -1.
+     *
      * @return Value of this MyBigInteger.
      */
     public int intValue() {
@@ -75,56 +97,76 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
                 newBigInt = newBigInt.multiply(this).mod(m);
             }
         }
+        
         return newBigInt;
     }
 
     /**
      * Calculates the sum of this and another MyBigInteger.
+     *
      * @param x MyBigInteger that is added.
      * @return new MyBigInteger with the value of this + x.
      */
     public MyBigInteger add(MyBigInteger x) {
-        MyBigInteger bigger = this.compareTo(x) > 0 ? new MyBigInteger(this.toString()) : new MyBigInteger(x.toString());
-        MyBigInteger smaller = this.compareTo(x) > 0 ? x : this;
-        int nextInt = 0;
-        for (int i = 0; i < smaller.array.length; i++) {
-            int biggerIndex = (bigger.array.length - i) - 1;
-            nextInt += smaller.array[(smaller.array.length - i) - 1];
-            bigger.array[biggerIndex] += nextInt;
-            if (bigger.array[biggerIndex] > 9) {
-                nextInt = 1;
-                bigger.array[biggerIndex] -= 10;
+        int[] biggerArray;
+        int[] smallerArray;
+        if (this.array.length < x.array.length) {
+            biggerArray = new int[x.array.length + 1];
+            System.arraycopy(x.array, 0, biggerArray, 1, x.array.length);
+            smallerArray = new int[this.array.length];
+            System.arraycopy(this.array, 0, smallerArray, 0, this.array.length);
+        } else {
+            biggerArray = new int[this.array.length + 1];
+            System.arraycopy(this.array, 0, biggerArray, 1, this.array.length);
+            smallerArray = new int[x.array.length];
+            System.arraycopy(x.array, 0, smallerArray, 0, x.array.length);
+        }
+        int carry = 0;
+        int biggerArrayIndex = 0;
+        for (int i = 0; i < smallerArray.length; i++) {
+            biggerArrayIndex = biggerArray.length - 1 - i;
+            biggerArray[biggerArrayIndex] += carry;
+            biggerArray[biggerArrayIndex] += smallerArray[smallerArray.length - 1 - i];
+            if (biggerArray[biggerArrayIndex] > 9) {
+                carry = 1;
+                biggerArray[biggerArrayIndex] -= 10;
             } else {
-                nextInt = 0;
-            }
-            if (i == smaller.array.length - 1 && nextInt == 1) {
-                biggerIndex--;
-                bigger = addOneToBigInteger(bigger, biggerIndex);
+                carry = 0;
             }
         }
-        return bigger;
-    }
-
-    private static MyBigInteger addOneToBigInteger(MyBigInteger bigInt, int index) {
-        while (true) {
-            if (index == -1) {
-                bigInt = new MyBigInteger("1".concat(bigInt.toString()));
+        biggerArrayIndex--;
+        while (carry == 1) {
+            biggerArray[biggerArrayIndex] += 1;
+            if (biggerArray[biggerArrayIndex] > 9) {
+                carry = 1;
+                biggerArray[biggerArrayIndex] -= 10;
+            } else {
+                carry = 0;
+            }
+            biggerArrayIndex--;
+        }
+        int[] finalArray = biggerArray;
+        for (int i = 0; i < biggerArray.length; i++) {
+            if (biggerArray[i] != 0) {
+                if (i == 0) {
+                    break;
+                }
+                finalArray = new int[biggerArray.length - i];
+                System.arraycopy(biggerArray, i, finalArray, 0, finalArray.length);
                 break;
             }
-            if (bigInt.array[index] == 9) {
-                bigInt.array[index] = 0;
-                index--;
-                continue;
+            if (i == biggerArray.length - 1) {
+                finalArray = new int[1];
+                finalArray[0] = biggerArray[biggerArray.length - 1];
             }
-            bigInt.array[index] += 1;
-            break;
         }
-        return bigInt;
+        return new MyBigInteger(finalArray);
     }
 
     /**
-     * Tests if a bit at certain index is positive.
-     * Index starts at 0, being the least significant.
+     * Tests if a bit at certain index is positive. Index starts at 0, being the
+     * least significant.
+     *
      * @param index
      * @return true or false
      */
@@ -133,169 +175,122 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
         return bits[bits.length - 1 - index];
     }
 
+    /**
+     * Subtracts the value of this and another MyBigInteger. The value is
+     * subtracted from bigger MyBigInteger.
+     *
+     * @param x MyBigInteger that is used in the process.
+     * @return new MyBigInteger with the value of bigger - smaller.
+     */
     public MyBigInteger subtract(MyBigInteger x) {
-        MyBigInteger bigger = this.compareTo(x) > 0 ? new MyBigInteger(this.toString()) : new MyBigInteger(x.toString());
-        MyBigInteger smaller = this.compareTo(x) > 0 ? x : this;
-        int nextInt = 0;
-        for (int i = 0; i < smaller.array.length; i++) {
-            int biggerIndex = bigger.array.length - i - 1;
-            int smallerIndex = smaller.array.length - i - 1;
-            checkOverflowForSubtract(bigger.array, smaller.array, biggerIndex, smallerIndex);
-            bigger.array[biggerIndex] -= smaller.array[smallerIndex];
-            if (bigger.array[biggerIndex] < 0) {
-                bigger.array[biggerIndex] += 10;
+        int[] biggerArray;
+        int[] smallerArray;
+        if (this.array.length < x.array.length) {
+            biggerArray = new int[x.array.length + 1];
+            System.arraycopy(x.array, 0, biggerArray, 1, x.array.length);
+            smallerArray = new int[this.array.length];
+            System.arraycopy(this.array, 0, smallerArray, 0, this.array.length);
+        } else {
+            biggerArray = new int[this.array.length + 1];
+            System.arraycopy(this.array, 0, biggerArray, 1, this.array.length);
+            smallerArray = new int[x.array.length];
+            System.arraycopy(x.array, 0, smallerArray, 0, x.array.length);
+        }
+        int carry = 0;
+        int biggerArrayIndex = 0;
+        for (int i = 0; i < smallerArray.length; i++) {
+            biggerArrayIndex = biggerArray.length - 1 - i;
+            biggerArray[biggerArrayIndex] -= carry;
+            biggerArray[biggerArrayIndex] -= smallerArray[smallerArray.length - 1 - i];
+            if (biggerArray[biggerArrayIndex] < 0) {
+                carry = 1;
+                biggerArray[biggerArrayIndex] += 10;
+            } else {
+                carry = 0;
             }
         }
-        while (bigger.array.length > 1 && bigger.array[0] == 0) {
-            bigger = new MyBigInteger(bigger.toString().substring(1));
+        biggerArrayIndex--;
+        while (carry == 1) {
+            biggerArray[biggerArrayIndex] -= 1;
+            if (biggerArray[biggerArrayIndex] < 0) {
+                carry = 1;
+                biggerArray[biggerArrayIndex] += 10;
+            } else {
+                carry = 0;
+            }
+            biggerArrayIndex--;
         }
-        return bigger;
+        int[] finalArray = removeZerosFromBeginning(biggerArray);
+
+        return new MyBigInteger(finalArray);
     }
 
-    private static void checkOverflowForSubtract(int[] biggerArray, int[] smallerArray, int biggerIndex, int smallerIndex) {
-        if (biggerArray[biggerIndex] < smallerArray[smallerIndex]) {
-            int j = 1;
-            while (true) {
-                if (biggerArray[biggerIndex - j] == 0) {
-                    biggerArray[biggerIndex - j] = 9;
-                    j++;
-                    continue;
+    private int[] removeZerosFromBeginning(int[] array) {
+        int[] finalArray = array;
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] != 0) {
+                if (i == 0) {
+                    break;
                 }
-                biggerArray[biggerIndex - j] -= 1;
+                finalArray = new int[array.length - i];
+                System.arraycopy(array, i, finalArray, 0, finalArray.length);
                 break;
             }
+            if (i == array.length - 1) {
+                finalArray = new int[1];
+                finalArray[0] = array[array.length - 1];
+            }
         }
+        return finalArray;
     }
 
     /**
      * Multiplies the MyBigInteger with another one.
+     *
      * @param x multiplyer.
      * @return new MyBigInteger, that is the result of multiplication.
      */
     public MyBigInteger multiply(MyBigInteger x) {
-        if (x.intValue() > -1 && this.intValue() > -1) {
-            return new MyBigInteger(String.valueOf((long) this.intValue() * (long) x.intValue()));
-        }
-        if (x.intValue() > -1) {
-            return multiplyByInteger(this, x.intValue());
-        }
-        return this.multiplyByBigInts(x);
-    }
-
-    private MyBigInteger multiplyByBigInts(MyBigInteger x) {
-        if (this.toString().equals("0") || x.toString().equals("0")) {
+        if (x.compareTo(MyBigInteger.ZERO) == 0 || this.compareTo(MyBigInteger.ZERO) == 0) {
             return MyBigInteger.ZERO;
         }
-        if (this.toString().equals("1")) {
-            return x;
+        int[] biggerArray;
+        int[] smallerArray;
+        if (this.array.length < x.array.length) {
+            biggerArray = new int[x.array.length];
+            System.arraycopy(x.array, 0, biggerArray, 0, x.array.length);
+            smallerArray = new int[this.array.length];
+            System.arraycopy(this.array, 0, smallerArray, 0, this.array.length);
+        } else {
+            biggerArray = new int[this.array.length];
+            System.arraycopy(this.array, 0, biggerArray, 0, this.array.length);
+            smallerArray = new int[x.array.length];
+            System.arraycopy(x.array, 0, smallerArray, 0, x.array.length);
         }
-        if (x.toString().equals("1")) {
-            return this;
-        }
-
-        boolean[] thisBits = this.getBitArray();
-        boolean[] multiplyer = x.getBitArray();
-
-        String multiplyerString = "";
-        String thisString = "";
-        for (int i = 0; i < thisBits.length; i++) {
-            thisString += thisBits[i] ? 1 : 0;
-        }
-
-        String[] sumArray = new String[multiplyer.length];
-
-        for (int i = multiplyer.length - 1; i >= 0; i--) {
-            if (multiplyer[i] == false) {
-                continue;
+        MyBigInteger bigger = new MyBigInteger(biggerArray);
+        int[] result = new int[smallerArray.length + biggerArray.length + 1];
+        for (int i = 0; i < smallerArray.length; i++) {
+            MyBigInteger total = MyBigInteger.ZERO;
+            for (int j = 0; j < smallerArray[smallerArray.length - 1 - i]; j++) {
+                total = total.add(bigger);
             }
-            String oneResult = "";
-            if (i == multiplyer.length - 1) {
-                sumArray[i] = thisString;
-                continue;
-            }
-            for (int j = i; j < multiplyer.length - 1; j++) {
-                oneResult += "0";
-            }
-            oneResult = thisString + oneResult;
-
-            sumArray[i] = oneResult;
-        }
-
-        String finalBinaryString = "";
-        for (int i = 0; i < sumArray.length; i++) {
-            if (sumArray[i] == null) {
-                continue;
-            }
-            if (finalBinaryString.equals("")) {
-                finalBinaryString = sumArray[i];
-                continue;
-            }
-
-            finalBinaryString = binaryAdd(finalBinaryString, sumArray[i]);
-        }
-        MyBigInteger finalBigInt = binaryStringToBigInteger(finalBinaryString);
-        return finalBigInt;
-    }
-
-    private static String binaryAdd(String x, String y) {
-        for (int i = 0; i < y.length(); i++) {
-            int yIndex = y.length() - 1 - i;
-            int xIndex = x.length() - 1 - i;
-            if (y.charAt(yIndex) == '0') {
-                continue;
-            }
-            
-            while (x.charAt(xIndex) == '1') {
-                x = x.substring(0, xIndex) + "0" + x.substring(xIndex + 1, x.length());
-                if (xIndex == 0) {
-                    x = "1" + x;
-                    break;
-                }
-                xIndex--;
-            }
-            if (xIndex == 0) {
-                continue;
-            }
-            x = x.substring(0, xIndex) + "1" + x.substring(xIndex + 1, x.length());
-        }
-        return x;
-    }
-
-    private MyBigInteger multiplyByInteger(MyBigInteger x, int y) {
-        int[] arr = x.array;
-        int[] result = new int[x.toString().length() + 32];
-        for (int i = arr.length - 1; i >= 0; i--) {
-            int value = arr[i] * y;
-            String valueString = String.valueOf(value);
-            for (int j = valueString.length() - 1; j >= 0; j--) {
-                int number = valueString.charAt(j) - 48;
-                int correctIndex = result.length - (arr.length - i - 1) - (valueString.length() - j);
-                result[correctIndex] += number;
-                int indexToCheck = correctIndex;
-                while (result[indexToCheck] > 9) {
-                    result[indexToCheck] -= 10;
-                    result[indexToCheck - 1] += 1;
-                    indexToCheck--;
+            for (int j = 0; j < total.array.length; j++) {
+                int resultIndex = result.length - i - j - 1;
+                int totalIndex = total.array.length - j - 1;
+                result[resultIndex] += total.array[totalIndex];
+                if (result[resultIndex] > 9) {
+                    result[resultIndex] -= 10;
+                    result[resultIndex - 1] += 1;
                 }
             }
         }
-        String finalResult = "";
-        for (int i = 0; i < result.length; i++) {
-            if (result[i] != 0) {
-                for (int j = i; j < result.length; j++) {
-                    finalResult += result[j];
-                }
-                break;
-            }
-        }
-        if (finalResult.equals("")) {
-            finalResult = "0";
-        }
-        return new MyBigInteger(finalResult);
+        result = removeZerosFromBeginning(result);
+        return new MyBigInteger(result);
     }
 
     /**
      * Calculates this mod other, where this and other are MyBigIntegers.
+     *
      * @param m The modulo taken from this.
      * @return new MyBigInteger with the modulo result as value.
      */
@@ -306,139 +301,60 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
 
     /**
      * Divides this MyBigInteger with another one.
+     *
      * @param x The divider as MyBigInteger.
      * @return new MyBigInteger with the result as value.
      */
     public MyBigInteger divide(MyBigInteger x) {
-        MyBigInteger newBigInt = this;
-        int divider = x.intValue();
-        if (divider == 0) {
+        if (x.compareTo(MyBigInteger.ZERO) <= 0) {
             throw new NumberFormatException("Divider must be 1 or higher");
         }
-        if (newBigInt.intValue() > -1 && divider > 0) {
-            return new MyBigInteger(String.valueOf(newBigInt.intValue() / x.intValue()));
-        }
-        String result = "";
-        if (divider > 0) {
-            result = newBigInt.divideByInteger(divider);
-        } else {
-            MyBigInteger a = newBigInt.divideByBigIntBits(x);
-            return a;
-        }
-        while (result.length() > 1 && result.charAt(0) == '0') {
-            result = result.substring(1);
-        }
-        return new MyBigInteger(result);
-    }
-
-    private String divideByInteger(int divider) {
-        String result = "";
-        int[] arr = this.array;
-        long tmp = 0;
-        for (int i = 0; i < arr.length; i++) {
-            tmp += arr[i];
-            long value = tmp / divider;
-            if (value == 0) {
-                tmp = tmp * 10;
-                result += 0;
-                continue;
-            }
-            result += value;
-            tmp = (tmp - value * divider) * 10;
-        }
-        return result;
-    }
-
-    private MyBigInteger divideByBigIntBits(MyBigInteger divider) {
-        boolean[] thisBits = this.getBitArray();
-        boolean[] dividerBits = divider.getBitArray();
-        if (this.compareTo(divider) < 0) {
+        int compareResult = this.compareTo(x);
+        if (compareResult < 0) {
             return MyBigInteger.ZERO;
-        }
-        if (thisBits.length == dividerBits.length) {
+        } else if (compareResult == 0) {
             return MyBigInteger.ONE;
         }
-        String dividerString = "";
-        String thisString = "";
-        for (int i = 0; i < dividerBits.length; i++) {
-            dividerString += dividerBits[i] ? 1 : 0;
-        }
-        for (int i = 0; i < thisBits.length; i++) {
-            thisString += thisBits[i] ? 1 : 0;
-        }
-        MyBigInteger dividerAsBit = new MyBigInteger(dividerString);
-        String numberToCheck = "";
-        String result = "";
-        for (int i = 0; i < thisString.length(); i++) {
-            numberToCheck += thisString.charAt(i);
-            MyBigInteger number = new MyBigInteger(numberToCheck);
-            if (number.compareTo(dividerAsBit) >= 0) {
-                result += 1;
-
-                for (int j = 0; j < dividerString.length(); j++) {
-                    int dividerIndex = dividerString.length() - 1 - j;
-                    int numberIndex = numberToCheck.length() - 1 - j;
-                    if (dividerString.charAt(dividerIndex) == '1') {
-                        if (numberToCheck.charAt(numberIndex) == '1') {
-                            numberToCheck = numberToCheck.substring(0, numberIndex) + "0" + numberToCheck.substring(numberIndex + 1, numberToCheck.length());
-                            continue;
-                        }
-                        if (numberToCheck.charAt(numberIndex) == '0') {
-                            int tmpIndex = 0;
-                            while (true) {
-                                if (numberIndex - tmpIndex - 1 < 0) {
-                                    tmpIndex--;
-                                    break;
-                                }
-                                numberToCheck = numberToCheck.substring(0, numberIndex - tmpIndex) + "1" + numberToCheck.substring(numberIndex + 1 - tmpIndex, numberToCheck.length());
-                                if (numberToCheck.charAt(numberIndex - tmpIndex - 1) == '1') {
-                                    break;
-                                }
-                                tmpIndex++;
-                            }
-                            tmpIndex++;
-                            numberToCheck = numberToCheck.substring(0, numberIndex - tmpIndex) + "0" + numberToCheck.substring(numberIndex + 1 - tmpIndex, numberToCheck.length());
-                            continue;
-                        }
-                    }
-                }
-            } else {
-                result += 0;
-            }
-            for (int j = 0; j < numberToCheck.length(); j++) {
-                if (numberToCheck.charAt(j) == '1') {
-                    numberToCheck = numberToCheck.substring(j);
-                    break;
-                }
-            }
-        }
-        for (int i = 0; i < result.length(); i++) {
-            if (result.charAt(i) == '1') {
-                result = result.substring(i, result.length());
+        int[] thisCopy = new int[this.array.length];
+        System.arraycopy(this.array, 0, thisCopy, 0, this.array.length);
+        MyBigInteger dividend = new MyBigInteger(thisCopy);
+        int thisBeginIndex = 0;
+        int thisEndIndex = 1;
+        int[] result = new int[this.array.length];
+        while (true) {
+            
+            
+            if (thisEndIndex > this.array.length) {
                 break;
             }
-        }
-        MyBigInteger finalValue = binaryStringToBigInteger(result);
-
-        return finalValue;
-    }
-
-    private static MyBigInteger binaryStringToBigInteger(String x) {
-        MyBigInteger finalValue = MyBigInteger.ZERO;
-        MyBigInteger bitValue = MyBigInteger.ONE;
-        MyBigInteger two = new MyBigInteger("2");
-        for (int i = x.length() - 1; i >= 0; i--) {
-            if (x.charAt(i) == '1') {
-                finalValue = finalValue.add(bitValue);
+            int[] longDividerArray = new int[thisEndIndex - thisBeginIndex];
+            System.arraycopy(dividend.array, thisBeginIndex, longDividerArray, 0, thisEndIndex - thisBeginIndex);
+            MyBigInteger longDividend = new MyBigInteger(longDividerArray);
+            int times = 0;
+            if (longDividend.compareTo(x) >= 0) {
+                while (longDividend.compareTo(x) >= 0) {
+                    longDividend = longDividend.subtract(x);
+                    times++;
+                }
+                if (longDividend.compareTo(MyBigInteger.ZERO) == 0) {
+                    thisBeginIndex = thisEndIndex;
+                } else {
+                    int digitsLeftFromSubtract = longDividend.array.length;
+                    thisBeginIndex = thisEndIndex - digitsLeftFromSubtract;
+                    System.arraycopy(longDividend.array, 0, dividend.array, thisBeginIndex, digitsLeftFromSubtract);
+                }
             }
-            bitValue = bitValue.multiply(two);
-        }
+            result[thisEndIndex - 1] = times;
+            thisEndIndex++;
 
-        return finalValue;
+        }
+        result = removeZerosFromBeginning(result);
+        return new MyBigInteger(result);
     }
 
     /**
      * Does shiftRight operation (multiply by 2) x times.
+     *
      * @param x how many times is shifted
      * @return new MyBigInteger with the new value.
      */
@@ -452,6 +368,7 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
 
     /**
      * Does shiftRight operation (divide by 2) x times.
+     *
      * @param x how many times is shifted
      * @return new MyBigInteger with the new value.
      */
@@ -464,46 +381,81 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
     }
 
     private MyBigInteger shiftLeftOnce() {
-        MyBigInteger result = new MyBigInteger(this.toString());
-        int overFlow = 0;
-        for (int i = result.array.length - 1; i >= 0; i--) {
-            result.array[i] *= 2;
-            if (overFlow != 0) {
-                result.array[i] += overFlow;
-                overFlow = 0;
-            }
-            if (result.array[i] > 9) {
-                overFlow = 1;
-                result.array[i] -= 10;
-            }
-            if (i == 0 && overFlow == 1) {
-                result = new MyBigInteger("1".concat(result.toString()));
-            }
+        int[] newArray;
+        boolean bit = false;
+        if (this.array[0] >= 5) {
+            newArray = new int[this.array.length + 1];
+            System.arraycopy(this.array, 0, newArray, 1, this.array.length);
+        } else {
+            newArray = new int[this.array.length];
+            System.arraycopy(this.array, 0, newArray, 0, this.array.length);
         }
-        return result;
+        for (int i = newArray.length - 1; i >= 0; i--) {
+            newArray[i] = newArray[i] << 1;
+            boolean tmp = newArray[i] > 9;
+            if (tmp) {
+                newArray[i] -= 10;
+            }
+            if (bit) {
+                newArray[i]++;
+            }
+            bit = tmp;
+        }
+        return new MyBigInteger(newArray);
     }
 
     private MyBigInteger shiftRightOnce() {
-        MyBigInteger result = new MyBigInteger(this.toString());
-        int overFlow = 0;
-        for (int i = 0; i < result.array.length; i++) {
-            result.array[i] /= 2;
-            if (overFlow != 0) {
-                result.array[i] += overFlow;
-                overFlow = 0;
+        int[] newArray;
+        boolean bit = false;
+        if (this.array[0] == 1) {
+            if (this.array.length == 1) {
+                return MyBigInteger.ZERO;
             }
-            if (this.array[i] % 2 != 0) {
-                overFlow = 5;
-            }
-            if (i == result.array.length - 1 && result.array[0] == 0 && result.array.length > 1) {
-                result = new MyBigInteger(result.toString().substring(1));
-            }
+            newArray = new int[this.array.length - 1];
+            System.arraycopy(this.array, 1, newArray, 0, newArray.length);
+            bit = true;
+        } else {
+            newArray = new int[this.array.length];
+            System.arraycopy(this.array, 0, newArray, 0, this.array.length);
         }
-        return result;
+        for (int i = 0; i < newArray.length; i++) {
+            boolean tmp = newArray[i] % 2 == 1;
+            newArray[i] = newArray[i] >> 1;
+            if (bit) {
+                newArray[i] += 5;
+            }
+            bit = tmp;
+        }
+        return new MyBigInteger(newArray);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final MyBigInteger other = (MyBigInteger) obj;
+        if (!Arrays.equals(this.array, other.array)) {
+            return false;
+        }
+        return true;
     }
 
     /**
      * Compares this with another MyBigInteger
+     *
      * @param other MyBigInteger that is compared to this
      * @return result of the comparison
      */
@@ -528,6 +480,7 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
 
     /**
      * Calculates how many bits are in the MyBigInteger value.
+     *
      * @return number of bits.
      */
     public int bitLength() {
@@ -545,53 +498,36 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
         return bits;
     }
 
-    private boolean[] toBitArray() {
-        // DO THIS: Check last digit, if uneven, add 1 to final binary, if even add 0. Do move right (/2). Repeat, adding numbers to left side.
-        
-        if (bitsSaved == null) {
-            bitsSaved = new MyBigInteger[2048];
-            MyBigInteger bitToCheck = MyBigInteger.ONE;
-            MyBigInteger two = new MyBigInteger("2");
-            for (int i = 0; i < bitsSaved.length; i++) {
-                bitsSaved[i] = bitToCheck;
-                bitToCheck = bitToCheck.multiply(two);
+    private int[] byteArrayToIntArray(byte[] array) {
+        MyBigInteger result = MyBigInteger.ZERO;
+        MyBigInteger bit = MyBigInteger.ONE;
+        for (int i = 0; i < array.length; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (array[array.length - i - 1] % 2 == 1) {
+                    result = result.add(bit);
+                }
+                bit = bit.shiftLeftOnce();
+                array[array.length - i - 1] /= 2;
             }
         }
-        int index = 0;
-        int biggestIndex = 0;
-        boolean[] bitArray = new boolean[2048];
-        MyBigInteger two = new MyBigInteger("2");
-        MyBigInteger integerToCheck = this;
-        MyBigInteger bitToCheck = MyBigInteger.ONE;
+        return result.array;
+    }
 
-        for (int i = 0; i < bitsSaved.length; i++) {
-            if (integerToCheck.compareTo(bitsSaved[i]) >= 0) {
-                index++;
+    public boolean[] toBitArray() {
+        String thisBits = "";
+        MyBigInteger toCheck = this;
+        while (toCheck.compareTo(MyBigInteger.ZERO) > 0) {
+            if (toCheck.array[toCheck.array.length - 1] % 2 == 1) {
+                thisBits = "1" + thisBits;
             } else {
-                break;
+                thisBits = "0" + thisBits;
             }
+            toCheck = toCheck.shiftRightOnce();
         }
-
-        if (index == 0) {
-            return new boolean[1];
+        boolean[] bitsToReturn = new boolean[thisBits.length()];
+        for (int i = 0; i < thisBits.length(); i++) {
+            bitsToReturn[i] = thisBits.charAt(i) == '1';
         }
-        index--;
-        biggestIndex = index;
-
-        while (true) {
-            if (integerToCheck.compareTo(bitsSaved[index]) >= 0) {
-                bitArray[bitArray.length - 1 - index] = true;
-                integerToCheck = integerToCheck.subtract(bitsSaved[index]);
-            }
-            index--;
-            if (index < 0) {
-                break;
-            }
-        }
-
-        boolean[] finalBitArray = new boolean[biggestIndex + 1];
-        System.arraycopy(bitArray, bitArray.length - 1 - biggestIndex, finalBitArray, 0, finalBitArray.length);
-
-        return finalBitArray;
+        return bitsToReturn;
     }
 }

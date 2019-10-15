@@ -1,6 +1,6 @@
 package rsaencryption.domain;
 
-import java.math.BigInteger;
+import datastructures.MyBigInteger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -11,13 +11,13 @@ import rsaencryption.utils.Utils;
 public class PrivateKeyTest {
 
     private PrivateKey privateKey;
-    private BigInteger n;
-    private BigInteger d;
+    private MyBigInteger n;
+    private MyBigInteger d;
 
     @Before
     public void setUp() {
-        n = new BigInteger("3233");
-        d = new BigInteger("2753");
+        n = new MyBigInteger("3233");
+        d = new MyBigInteger("2753");
         privateKey = new PrivateKey(n, d);
     }
 

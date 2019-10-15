@@ -14,7 +14,7 @@ public class KeyGeneratorTest {
     @Before
     public void setUp() {
         keyGen = new KeyGenerator();
-        MyPair<PublicKey, PrivateKey> keys = keyGen.generateKeys(2048);
+        MyPair<PublicKey, PrivateKey> keys = keyGen.generateKeys(256);
         publicKey = keys.getKey();
         privateKey = keys.getValue();
     }

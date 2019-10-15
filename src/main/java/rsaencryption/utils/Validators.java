@@ -101,10 +101,6 @@ public class Validators {
      * @return true if hex is valid and correct length
      */
     public static boolean checkValidHexInputOnDecrypt(String hex) {
-        if (hex.length() > 512 || hex.length() < 510) {
-            System.out.println("ERROR: Input is not correct length");
-            return false;
-        }
         if (!hex.matches("[0-9A-F]+")) {
             System.out.println("ERROR: Input must include only hex characters: 0-9,A-F");
             return false;

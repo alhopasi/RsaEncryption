@@ -1,7 +1,6 @@
 
 package datastructures;
 
-import java.math.BigInteger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
@@ -15,8 +14,8 @@ public class MyPairTest {
     
     @Before
     public void setUp() {
-        PublicKey publicKey = new PublicKey(new BigInteger("3233"),new BigInteger("17"));
-        PrivateKey privateKey = new PrivateKey(new BigInteger("3233"), new BigInteger("2753"));
+        PublicKey publicKey = new PublicKey(new MyBigInteger("3233"),new MyBigInteger("17"));
+        PrivateKey privateKey = new PrivateKey(new MyBigInteger("3233"), new MyBigInteger("2753"));
         pair = new MyPair<>(publicKey, privateKey);
     }
     
@@ -27,11 +26,11 @@ public class MyPairTest {
     
     @Test
     public void firstObjectEqualsStored() {
-        assertEquals(new PublicKey(new BigInteger("3233"),new BigInteger("17")), pair.getKey());
+        assertEquals(new PublicKey(new MyBigInteger("3233"),new MyBigInteger("17")), pair.getKey());
     }
     
     @Test
     public void secondObjectEqualsStored() {
-        assertEquals(new PrivateKey(new BigInteger("3233"), new BigInteger("2753")), pair.getValue());
+        assertEquals(new PrivateKey(new MyBigInteger("3233"), new MyBigInteger("2753")), pair.getValue());
     }
 }

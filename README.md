@@ -26,9 +26,10 @@ Project is a part of course "Aineopintojen harjoitustyö: Tietorakenteet ja algr
 [Week 5](documentation/weekreport5.md)
 
 [Week 6](documentation/weekreport6.md)
+
 ## Compiled program
 
-*(coming later)*
+[Releases](https://github.com/alhopasi/RsaEncryption/releases)
 
 ## How to run on command line
 
@@ -40,3 +41,4 @@ Project is a part of course "Aineopintojen harjoitustyö: Tietorakenteet ja algr
 
 - Compile: mvn package
 - Run: java -jar target/RsaEncryption-1.0-SNAPSHOT.jar
+  Or download the release and run with `java -jar RsaEncryption.jar`

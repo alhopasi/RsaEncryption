@@ -29,7 +29,7 @@ public class IoControllerTest {
     @Test
     public void saveKeysSavesKeys() {
         KeyGenerator keyGen = new KeyGenerator();
-        MyPair<PublicKey, PrivateKey> keys = keyGen.generateKeys(2048);
+        MyPair<PublicKey, PrivateKey> keys = keyGen.generateKeys(256);
         PublicKey publicKey = keys.getKey();
         PrivateKey privateKey = keys.getValue();
         boolean test1 = io.saveKeys(new File("keys"), "test", publicKey, privateKey);
@@ -41,7 +41,7 @@ public class IoControllerTest {
     @Test
     public void loadPrivateKeyLoadsPrivateKey() {
         KeyGenerator keyGen = new KeyGenerator();
-        MyPair<PublicKey, PrivateKey> keys = keyGen.generateKeys(2048);
+        MyPair<PublicKey, PrivateKey> keys = keyGen.generateKeys(256);
         PublicKey publicKey = keys.getKey();
         PrivateKey privateKey = keys.getValue();
         io.saveKeys(new File("keys"), "test", publicKey, privateKey);
@@ -54,7 +54,7 @@ public class IoControllerTest {
     @Test
     public void loadPublicKeyLoadsPublicKey() {
         KeyGenerator keyGen = new KeyGenerator();
-        MyPair<PublicKey, PrivateKey> keys = keyGen.generateKeys(2048);
+        MyPair<PublicKey, PrivateKey> keys = keyGen.generateKeys(256);
         PublicKey publicKey = keys.getKey();
         PrivateKey privateKey = keys.getValue();
         io.saveKeys(new File("keys"), "test", publicKey, privateKey);

@@ -1,10 +1,8 @@
 package rsaencryption.domain;
 
 import datastructures.MyBigInteger;
-import java.math.BigInteger;
 import datastructures.MyPair;
 import datastructures.MyRandom;
-import rsaencryption.utils.Utils;
 
 /**
  * Key generator for RSA public and private keys.
@@ -24,19 +22,19 @@ public class KeyGenerator {
      * @return pair, where key is the PublicKey and value is the PrivateKey.
      */
     public MyPair<PublicKey, PrivateKey> generateKeys(int k) {
-        BigInteger p;
-        BigInteger q;
-        BigInteger n;
-        BigInteger totient;
-        BigInteger e = new BigInteger("65537");
-        BigInteger d;
+        MyBigInteger p;
+        MyBigInteger q;
+        MyBigInteger n;
+        MyBigInteger totient;
+        MyBigInteger e = new MyBigInteger("65537");
+        MyBigInteger d;
 
         while (true) {
             p = generatePrime(k / 2);
             q = generatePrime(k - k / 2);
             n = p.multiply(q);
-            totient = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
-            if (gcd(e, totient).compareTo(BigInteger.ONE) == 0) {
+            totient = p.subtract(MyBigInteger.ONE).multiply(q.subtract(MyBigInteger.ONE));
+            if (gcd(e, totient).compareTo(MyBigInteger.ONE) == 0) {
                 break;
             }
         }
@@ -45,36 +43,36 @@ public class KeyGenerator {
         return keys;
     }
 
-    private BigInteger extendedEuclideanAlgorithm(BigInteger n, BigInteger m) {
+    private MyBigInteger extendedEuclideanAlgorithm(MyBigInteger n, MyBigInteger m) {
         if (m.compareTo(n) > 0) {
-            BigInteger a = n;
+            MyBigInteger a = n;
             n = m;
             m = a;
         }
-        if (m.compareTo(BigInteger.ONE) == 0) {
-            return BigInteger.ONE;
+        if (m.compareTo(MyBigInteger.ONE) == 0) {
+            return MyBigInteger.ONE;
         }
-        BigInteger d = BigInteger.ONE.add(n.multiply(m.subtract(extendedEuclideanAlgorithm(n.mod(m), m)))).divide(m);
+        MyBigInteger d = MyBigInteger.ONE.add(n.multiply(m.subtract(extendedEuclideanAlgorithm(n.mod(m), m)))).divide(m);
         return d;
     }
 
-    private BigInteger gcd(BigInteger a, BigInteger b) {
-        while (b.compareTo(BigInteger.ZERO) != 0) {
-            BigInteger tmp = a;
+    private MyBigInteger gcd(MyBigInteger a, MyBigInteger b) {
+        while (b.compareTo(MyBigInteger.ZERO) != 0) {
+            MyBigInteger tmp = a;
             a = b;
             b = tmp.mod(b);
         }
         return a;
     }
 
-    private BigInteger generatePrime(int bitLength) {
+    private MyBigInteger generatePrime(int bitLength) {
 
-        BigInteger prime = generatePositiveInteger(bitLength);
-
+        MyBigInteger prime = generatePositiveInteger(bitLength);
+        
         boolean isPrime = true;
         while (true) {
             if (!isPrime) {
-                prime = prime.add(BigInteger.valueOf(2));
+                prime = prime.add(new MyBigInteger("2"));
                 isPrime = true;
             }
             if (!isPrimeSmallFactorTest(prime)) {
@@ -90,42 +88,42 @@ public class KeyGenerator {
         }
     }
 
-    private boolean isPrimeSmallFactorTest(BigInteger prime) {
-        int[] primes
-                = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43,
-                    47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107,
-                    109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181,
-                    191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251};
+    private boolean isPrimeSmallFactorTest(MyBigInteger prime) {
+        String[] primes
+                = {"2", "3", "5", "7", "11", "13", "17", "19", "23", "29", "31", "37", "41", "43",
+                    "47", "53", "59", "61", "67", "71", "73", "79", "83", "89", "97", "101", "103", "107",
+                    "109", "113", "127", "131", "137", "139", "149", "151", "157", "163", "167", "173", "179", "181",
+                    "191", "193", "197", "199", "211", "223", "227", "229", "233", "239", "241", "251"};
 
         for (int i = 0; i < primes.length; i++) {
-            if (prime.mod(new BigInteger(String.valueOf(primes[i]))).compareTo(BigInteger.ZERO) == 0) {
+            if (prime.mod(new MyBigInteger(primes[i])).compareTo(MyBigInteger.ZERO) == 0) {
                 return false;
             }
         }
         return true;
     }
 
-    private BigInteger generatePositiveInteger(int bitLength) {
-        BigInteger prime;
+    private MyBigInteger generatePositiveInteger(int bitLength) {
+        MyBigInteger prime;
 
         byte[] bytes = random.nextByteArray(bitLength / 8 + 1);
         bytes[0] = 0x00;
         int res = bytes[bytes.length - 1] | 0b1;
         bytes[bytes.length - 1] = (byte) res;
-        prime = new BigInteger(bytes);
+        prime = new MyBigInteger(bytes);
 
         return prime;
     }
 
-    private boolean isPrimeMillerRabin(BigInteger n, int k) {
-        BigInteger two = new BigInteger("2");
+    private boolean isPrimeMillerRabin(MyBigInteger n, int k) {
+        MyBigInteger two = new MyBigInteger("2");
 
-        if (n.compareTo(BigInteger.ONE) <= 0 || n.compareTo(new BigInteger("4")) == 0 || n.compareTo(new BigInteger("3")) <= 0) {
+        if (n.compareTo(MyBigInteger.ONE) <= 0 || n.compareTo(new MyBigInteger("4")) == 0 || n.compareTo(new MyBigInteger("3")) <= 0) {
             return false;
         }
-
-        BigInteger d = n.subtract(BigInteger.ONE);
-        while (d.mod(two) == BigInteger.ZERO) {
+        
+        MyBigInteger d = n.subtract(MyBigInteger.ONE);
+        while (d.mod(two).compareTo(MyBigInteger.ZERO) == 0) {
             d = d.shiftRight(1);
         }
         for (int i = 0; i < k; i++) {
@@ -136,34 +134,33 @@ public class KeyGenerator {
         return false;
     }
 
-    private boolean millerRabin(BigInteger d, BigInteger n) {
-        BigInteger a = randomNumberForMillerRabin(n);
-        //BigInteger x = a.modPow(d, n);
-        BigInteger x = Utils.powerMod(a, d, n);
+    private boolean millerRabin(MyBigInteger d, MyBigInteger n) {
+        MyBigInteger a = randomNumberForMillerRabin(n);
+        MyBigInteger x = a.modPow(d, n);
 
-        if (x.compareTo(BigInteger.ONE) == 0 || x.compareTo(n.subtract(BigInteger.ONE)) == 0) {
+        if (x.compareTo(MyBigInteger.ONE) == 0 || x.compareTo(n.subtract(MyBigInteger.ONE)) == 0) {
             return true;
         }
-        while (d.compareTo(n.subtract(BigInteger.ONE)) != 0) {
+        while (d.compareTo(n.subtract(MyBigInteger.ONE)) != 0) {
             x = x.multiply(x).mod(n);
             d = d.shiftLeft(1);
 
-            if (x.compareTo(BigInteger.ONE) == 0) {
+            if (x.compareTo(MyBigInteger.ONE) == 0) {
                 return false;
             }
-            if (x.compareTo(n.subtract(BigInteger.ONE)) == 0) {
+            if (x.compareTo(n.subtract(MyBigInteger.ONE)) == 0) {
                 return true;
             }
         }
         return false;
     }
 
-    private BigInteger randomNumberForMillerRabin(BigInteger n) {
-        BigInteger a;
+    private MyBigInteger randomNumberForMillerRabin(MyBigInteger n) {
+        MyBigInteger a;
         while (true) {
             a = generatePositiveInteger(n.bitLength());
 
-            if (a.compareTo(n) >= 0 || a.compareTo(BigInteger.ONE) <= 0 || a.compareTo(n.subtract(new BigInteger("2"))) > 0) {
+            if (a.compareTo(n) >= 0 || a.compareTo(MyBigInteger.ONE) <= 0 || a.compareTo(n.subtract(new MyBigInteger("2"))) > 0) {
                 continue;
             }
             break;

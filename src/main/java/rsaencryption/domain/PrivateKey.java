@@ -1,7 +1,7 @@
 package rsaencryption.domain;
 
+import datastructures.MyBigInteger;
 import rsaencryption.utils.Utils;
-import java.math.BigInteger;
 import java.util.Objects;
 
 /**
@@ -9,8 +9,8 @@ import java.util.Objects;
  */
 public class PrivateKey {
 
-    private final BigInteger n;
-    private final BigInteger d;
+    private final MyBigInteger n;
+    private final MyBigInteger d;
 
     /**
      * Creates a new private key for RSA encryption.
@@ -19,7 +19,7 @@ public class PrivateKey {
      * @param n the modulus for public and private key.
      * @param d the secret exponent for private key.
      */
-    public PrivateKey(BigInteger n, BigInteger d) {
+    public PrivateKey(MyBigInteger n, MyBigInteger d) {
         this.n = n;
         this.d = d;
     }
@@ -30,10 +30,9 @@ public class PrivateKey {
      * @return plaintext message.
      */
     public String decrypt(String hexed) {
-        BigInteger encrypted = Utils.hexToDecimal(hexed);
+        MyBigInteger encrypted = Utils.hexToDecimal(hexed);
         
-        //BigInteger decrypted = encrypted.modPow(d, n);
-        BigInteger decrypted = Utils.powerMod(encrypted, d, n);
+        MyBigInteger decrypted = encrypted.modPow(d, n);
         
         String message = Utils.decimalToString(decrypted);
         return message;

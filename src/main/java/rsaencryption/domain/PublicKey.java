@@ -1,7 +1,7 @@
 package rsaencryption.domain;
 
+import datastructures.MyBigInteger;
 import rsaencryption.utils.Utils;
-import java.math.BigInteger;
 import java.util.Objects;
 
 /**
@@ -9,8 +9,8 @@ import java.util.Objects;
  */
 public class PublicKey {
 
-    private final BigInteger e;
-    private final BigInteger n;
+    private final MyBigInteger e;
+    private final MyBigInteger n;
 
     /**
      * Creates new public key for RSA encryption.
@@ -18,7 +18,7 @@ public class PublicKey {
      * @param n the modulus for public and private key.
      * @param e the exponent used in encrypting the messages.
      */
-    public PublicKey(BigInteger n, BigInteger e) {
+    public PublicKey(MyBigInteger n, MyBigInteger e) {
         this.e = e;
         this.n = n;
     }
@@ -31,8 +31,8 @@ public class PublicKey {
     public String encrypt(String message) {
         //message = Padding.oaep(message);
         
-        BigInteger decrypted = Utils.stringToDecimal(message);
-        BigInteger encrypted = decrypted.modPow(e, n);
+        MyBigInteger decrypted = Utils.stringToDecimal(message);
+        MyBigInteger encrypted = decrypted.modPow(e, n);
         String hexed = Utils.decimalToHex(encrypted);
         
         return hexed;

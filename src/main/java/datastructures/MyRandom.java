@@ -6,7 +6,6 @@ public class MyRandom {
     private long a;
     private long c;
     private long x;
-    private byte[] array;
 
     /**
      * Class to create random big numbers as byte array.
@@ -34,46 +33,10 @@ public class MyRandom {
 
     /**
      * Used to set seed for tests.
+     * @param seed the seed given
      */
     public void setSeed(long seed) {
-        this.x = seed;
-    }
-
-    /**
-     * Used to create a random decimal String.
-     * @param length how many decimals to be in the String.
-     * @return String of decimals of certain length.
-     */
-    public String nextDecimalString(int length) {
-        String decimal = "";
-        for (int i = 0; i < length; i++) {
-            decimal += randomDecimal();
-            if (i == 0 && decimal.equals("0") && length != 1) {
-                decimal = "";
-                i--;
-            }
-        }
-        return decimal;
-    }
-
-    /**
-     * Used to create a random decimal String that is not even.
-     * @param length how many decimals to be in the String.
-     * @return String of decimals of certain length.
-     */
-    public String nextDecimalStringNotEven(int length) {
-        String decimal = "";
-        for (int i = 0; i < length - 1; i++) {
-            decimal += randomDecimal();
-            if (i == 0 && decimal.equals("0") && length != 1) {
-                decimal = "";
-                i--;
-            }
-        }
-        if (length > 0) {
-            decimal += randomDecimalNotEven();
-        }
-        return decimal;
+        this.x = seed / 2;
     }
 
     private int randomDecimalNotEven() {
@@ -85,7 +48,11 @@ public class MyRandom {
     }
 
     private int randomDecimal() {
-        return (int) (10.0 * randomValue());
+        int value = (int) (10.0 * randomValue());
+        if (value == 10) {
+            value = 9;
+        }
+        return value;
     }
 
     private double randomValue() {
@@ -95,7 +62,7 @@ public class MyRandom {
 
     private byte nextByte() {
         int res = 0;
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 7; i++) {
             boolean bit = randomValue() > 0.5;
             if (bit) {
                 int value = 1;
@@ -106,6 +73,5 @@ public class MyRandom {
             }
         }
         return (byte) res;
-
     }
 }

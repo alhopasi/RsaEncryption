@@ -19,7 +19,7 @@ public class ValidatorsTest {
     @Before
     public void setUp() {
         KeyGenerator keyGen = new KeyGenerator();
-        keys = keyGen.generateKeys(2048);
+        keys = keyGen.generateKeys(256);
         publicKey = keys.getKey();
         privateKey = keys.getValue();
     }
@@ -52,10 +52,8 @@ public class ValidatorsTest {
     public void checkValidHexInputOnDecryptValidatorWorksCorrectly() {
         String encrypted = publicKey.encrypt("cat says meow");
         String encryptedButOneLetterChangedToNonHex = encrypted.replaceFirst("A", "K");
-        String encryptedButCut = encrypted.substring(2);
         assertTrue(Validators.checkValidHexInputOnDecrypt(encrypted));
         assertTrue(!Validators.checkValidHexInputOnDecrypt(encryptedButOneLetterChangedToNonHex));
-        assertTrue(!Validators.checkValidHexInputOnDecrypt(encryptedButCut));
     }
     
     @Test

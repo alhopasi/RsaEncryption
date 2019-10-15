@@ -1,6 +1,6 @@
 package rsaencryption.utils;
 
-import java.math.BigInteger;
+import datastructures.MyBigInteger;
 
 /**
  * Contains several static utility functions to manipulate Strings, Hexes and
@@ -14,14 +14,14 @@ public class Utils {
      * @param integer Decimal to be converted.
      * @return String that is hexes.
      */
-    public static String decimalToHex(BigInteger integer) {
+    public static String decimalToHex(MyBigInteger integer) {
         char hexchars[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-        BigInteger value = integer;
+        MyBigInteger value = integer;
         int remaining;
-        BigInteger sixteen = new BigInteger("16");
+        MyBigInteger sixteen = new MyBigInteger("16");
         String hex = "";
 
-        while (value.compareTo(BigInteger.ZERO) > 0) {
+        while (value.compareTo(MyBigInteger.ZERO) > 0) {
             remaining = value.mod(sixteen).intValue();
             hex = hexchars[remaining] + hex;
             value = value.divide(sixteen);
@@ -36,10 +36,10 @@ public class Utils {
      * @return Integer that represents the hexes that were converted from a
      * String.
      */
-    public static BigInteger stringToDecimal(String message) {
+    public static MyBigInteger stringToDecimal(String message) {
         String hex = stringToHex(message);
 
-        BigInteger uncryptedMsg = hexToDecimal(hex);
+        MyBigInteger uncryptedMsg = hexToDecimal(hex);
         return uncryptedMsg;
     }
 
@@ -49,7 +49,7 @@ public class Utils {
      * @param integer the decimal to be converted.
      * @return String in readable format.
      */
-    public static String decimalToString(BigInteger integer) {
+    public static String decimalToString(MyBigInteger integer) {
         String hex = decimalToHex(integer);
         //System.out.println(hex);
         String message = hexToString(hex);
@@ -62,14 +62,14 @@ public class Utils {
      * @param hex the String to be converted.
      * @return Integer representation of the hex.
      */
-    public static BigInteger hexToDecimal(String hex) {
-        BigInteger sixteen = new BigInteger("16");
+    public static MyBigInteger hexToDecimal(String hex) {
+        MyBigInteger sixteen = new MyBigInteger("16");
         String digits = "0123456789ABCDEF";
         hex = hex.toUpperCase();
-        BigInteger value = BigInteger.ZERO;
+        MyBigInteger value = MyBigInteger.ZERO;
         for (int i = 0; i < hex.length(); i++) {
             char c = hex.charAt(i);
-            BigInteger intValue = getValueOfHex(c);
+            MyBigInteger intValue = getValueOfHex(c);
             value = value.multiply(sixteen).add(intValue);
         }
         return value;
@@ -77,14 +77,14 @@ public class Utils {
 
     /**
      * Powers the given integer and the takes modulo
-     * NOTE: This will be removed and made into MyBigIntegers own method.
+     * NOTE: This will be removed and made into MyMyBigIntegers own method.
      * @param x Integer given
      * @param e The power
      * @param m The modulo
      * @return the result
      */
-    public static BigInteger powerMod(BigInteger x, BigInteger e, BigInteger m) {
-        BigInteger y = x;
+    public static MyBigInteger powerMod(MyBigInteger x, MyBigInteger e, MyBigInteger m) {
+        MyBigInteger y = x;
         
         for (int bit = e.bitLength() - 2; bit >= 0; bit--) {
             y = (y.multiply(y)).mod(m);
@@ -108,7 +108,7 @@ public class Utils {
         String[] hexes = hex.split("");
         for (int i = 0; i < hex.length(); i += 2) {
             String character = hexes[i] + hexes[i + 1];
-            BigInteger value = hexToDecimal(character);
+            MyBigInteger value = hexToDecimal(character);
             int intValue = Integer.valueOf(value.toString());
             message += (char) intValue;
         }
@@ -129,21 +129,21 @@ public class Utils {
         return hex;
     }
 
-    private static BigInteger getValueOfHex(char hex) {
+    private static MyBigInteger getValueOfHex(char hex) {
         if (hex == 'A') {
-            return new BigInteger("10");
+            return new MyBigInteger("10");
         } else if (hex == 'B') {
-            return new BigInteger("11");
+            return new MyBigInteger("11");
         } else if (hex == 'C') {
-            return new BigInteger("12");
+            return new MyBigInteger("12");
         } else if (hex == 'D') {
-            return new BigInteger("13");
+            return new MyBigInteger("13");
         } else if (hex == 'E') {
-            return new BigInteger("14");
+            return new MyBigInteger("14");
         } else if (hex == 'F') {
-            return new BigInteger("15");
+            return new MyBigInteger("15");
         } else {
-            return new BigInteger(String.valueOf(hex));
+            return new MyBigInteger(String.valueOf(hex));
         }
     }
 }

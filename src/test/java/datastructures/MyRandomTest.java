@@ -1,5 +1,6 @@
 package datastructures;
 
+import java.util.Arrays;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
@@ -36,9 +37,9 @@ public class MyRandomTest {
     @Test
     public void byteArrayOfThreeWorks() {
         byte[] array = random.nextByteArray(3);
-        assertEquals(-5, array[0]);
-        assertEquals(-72, array[1]);
-        assertEquals(74, array[2]);
+        assertEquals(123, array[0]);
+        assertEquals(113, array[1]);
+        assertEquals(42, array[2]);
     }
 
     @Test
