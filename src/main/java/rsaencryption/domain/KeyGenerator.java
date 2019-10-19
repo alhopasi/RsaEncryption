@@ -66,9 +66,10 @@ public class KeyGenerator {
     }
 
     private MyBigInteger generatePrime(int bitLength) {
-
         MyBigInteger prime = generatePositiveInteger(bitLength);
-        
+        if (!prime.testBit(0)) {
+            prime = prime.subtract(MyBigInteger.ONE);
+        }
         boolean isPrime = true;
         while (true) {
             if (!isPrime) {
@@ -77,11 +78,8 @@ public class KeyGenerator {
             }
             if (!isPrimeSmallFactorTest(prime)) {
                 isPrime = false;
-                continue;
-            }
-            if (!isPrimeMillerRabin(prime, 4)) {
+            } else if (!isPrimeMillerRabin(prime, 4)) {
                 isPrime = false;
-                continue;
             } else {
                 return prime;
             }
@@ -104,34 +102,29 @@ public class KeyGenerator {
     }
 
     private MyBigInteger generatePositiveInteger(int bitLength) {
-        MyBigInteger prime;
-
-        byte[] bytes = random.nextByteArray(bitLength / 8 + 1);
-        bytes[0] = 0x00;
-        int res = bytes[bytes.length - 1] | 0b1;
-        bytes[bytes.length - 1] = (byte) res;
-        prime = new MyBigInteger(bytes);
-
-        return prime;
+        byte[] bytes = random.nextByteArray(bitLength / 8);
+        if (bytes.length == 0) {
+            bytes = random.nextByteArray(1);
+        }
+        return new MyBigInteger(bytes);
     }
 
-    private boolean isPrimeMillerRabin(MyBigInteger n, int k) {
+    public boolean isPrimeMillerRabin(MyBigInteger n, int k) {
         MyBigInteger two = new MyBigInteger("2");
 
         if (n.compareTo(MyBigInteger.ONE) <= 0 || n.compareTo(new MyBigInteger("4")) == 0 || n.compareTo(new MyBigInteger("3")) <= 0) {
             return false;
         }
-        
         MyBigInteger d = n.subtract(MyBigInteger.ONE);
         while (d.mod(two).compareTo(MyBigInteger.ZERO) == 0) {
             d = d.shiftRight(1);
         }
         for (int i = 0; i < k; i++) {
-            if (millerRabin(d, n)) {
-                return true;
+            if (!millerRabin(d, n)) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     private boolean millerRabin(MyBigInteger d, MyBigInteger n) {
@@ -158,8 +151,7 @@ public class KeyGenerator {
     private MyBigInteger randomNumberForMillerRabin(MyBigInteger n) {
         MyBigInteger a;
         while (true) {
-            a = generatePositiveInteger(n.bitLength());
-
+            a = generatePositiveInteger(n.bitLength() - 2);
             if (a.compareTo(n) >= 0 || a.compareTo(MyBigInteger.ONE) <= 0 || a.compareTo(n.subtract(new MyBigInteger("2"))) > 0) {
                 continue;
             }

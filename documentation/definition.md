@@ -5,7 +5,7 @@ The goal of the project is to create a working RSA-keypair generator and the pos
 ## Algorithms and data structures
 
 - A number, which can be as long as possible.
-- For this number, possibility to use many methods.
+- For this number, methods for add, subtract, multiply, division and few more.
 - Random generator, which can randomize a byte array.
 - A pair, which has two objects.
 
@@ -39,3 +39,4 @@ These are secondary objectives. To be done if there is enough time:
 - https://www.geeksforgeeks.org/primality-test-set-3-miller-rabin/
 - https://www.di-mgt.com.au/rsa_alg.html
 - https://en.wikipedia.org/wiki/Linear_congruential_generator
+- https://en.wikipedia.org/wiki/Modular_exponentiation
