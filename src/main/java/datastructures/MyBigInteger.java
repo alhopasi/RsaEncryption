@@ -178,7 +178,7 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
         }
         return false;
     }
-
+    
     /**
      * Tests if a bit at certain index is positive. Index starts at 0, being the
      * least significant.
