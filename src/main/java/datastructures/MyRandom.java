@@ -14,7 +14,7 @@ public class MyRandom {
         m = 32769;  //modulus, 0 < m
         a = 25173;  // multiplier, 0 < a < m
         c = 13849;  // increment, 0 < c < m
-        x = (System.currentTimeMillis() % m) / 2;  // start value (seed)  (clock?)
+        x = (System.currentTimeMillis() % m) / 2;  // start value (seed)
     }
 
     /**
@@ -26,33 +26,22 @@ public class MyRandom {
     public byte[] nextByteArray(int length) {
         byte[] array = new byte[length];
         for (int i = 0; i < length; i++) {
-            array[i] = nextByte();
+            if (i == 0) {
+                array[i] = nextByte(true);
+            } else {
+                array[i] = nextByte(false);
+            }
         }
         return array;
     }
 
     /**
      * Used to set seed for tests.
+     *
      * @param seed the seed given
      */
     public void setSeed(long seed) {
         this.x = seed / 2;
-    }
-
-    private int randomDecimalNotEven() {
-        int value = 0;
-        while (value % 2 == 0) {
-            value = (int) (10.0 * randomValue());
-        }
-        return value;
-    }
-
-    private int randomDecimal() {
-        int value = (int) (10.0 * randomValue());
-        if (value == 10) {
-            value = 9;
-        }
-        return value;
     }
 
     private double randomValue() {
@@ -60,15 +49,19 @@ public class MyRandom {
         return (x * 1.0 / m);
     }
 
-    private byte nextByte() {
+    private byte nextByte(boolean onlyPositive) {
         int res = 0;
+        int value = 1;
         for (int i = 0; i < 7; i++) {
             boolean bit = randomValue() > 0.5;
             if (bit) {
-                int value = 1;
-                for (int j = 0; j < i; j++) {
-                    value *= 2;
-                }
+                res += value;
+            }
+            value *= 2;
+        }
+        if (!onlyPositive) {
+            boolean bit = randomValue() > 0.5;
+            if (bit) {
                 res += value;
             }
         }

@@ -39,6 +39,7 @@ public class MyBigIntegerTest {
         assertEquals("108", nine.add(ninetynine).toString());
         assertEquals("110", new MyBigInteger("109").add(one).toString());
         assertEquals("100000000000000000000000000000000000000000000000000", bigNumber1.add(bigNumber2).toString());
+        assertEquals("0", zero.add(zero).toString());
     }
     
     @Test
@@ -74,6 +75,7 @@ public class MyBigIntegerTest {
     
     @Test
     public void myBigIntegerTestBitWorksCorrectly() {
+        assertTrue(!zero.testBit(0));
         assertTrue(one.testBit(0));
         assertTrue(ninetynine.testBit(0));
         assertTrue(ninetynine.testBit(1));
@@ -90,10 +92,12 @@ public class MyBigIntegerTest {
         assertEquals("9", nine.mod(ninetynine).toString());
         assertEquals("0", ninetynine.mod(nine).toString());
         assertEquals("1", bigNumber1.mod(nine).toString());
+        assertEquals("0", nine.mod(one).toString());
     }
     
     @Test
     public void myBigIntegerBitLengthWorksCorrectly() {
+        assertEquals(0, zero.bitLength());
         assertEquals(1, one.bitLength());
         assertEquals(7, ninetynine.bitLength());
         assertEquals(163, bigNumber1.bitLength());
@@ -105,6 +109,7 @@ public class MyBigIntegerTest {
         assertEquals("25", nine.modPow(ninetynine, new MyBigInteger("64")).toString());
         assertEquals("1", nine.modPow(new MyBigInteger("2"), new MyBigInteger("2")).toString());
         assertEquals("1", nine.modPow(new MyBigInteger("2"), new MyBigInteger("80")).toString());
+        assertEquals("0", nine.modPow(ninetynine, one).toString());
     }
     
     @Test
@@ -134,6 +139,8 @@ public class MyBigIntegerTest {
         assertEquals("95", new MyBigInteger("104").subtract(nine).toString());
         assertEquals("80000000000000000000000000000000000000000000000000", bigNumber2.subtract(bigNumber1).toString());
         assertEquals("89999999999999999999999999999999999999999999999991", bigNumber2.subtract(nine).toString());
+        assertEquals("91", nine.subtract(new MyBigInteger("100")).toString());
+        assertEquals("8", one.subtract(new MyBigInteger("9")).toString());
     }
     
     @Test

@@ -31,7 +31,21 @@ public class KeyGeneratorTest {
     }
     
     @Test
-    public void encryptAndDecryptWorks() {
+    public void keyGeneratorWorksWithReallySmallKeys() {
+        MyPair<PublicKey, PrivateKey> keys = keyGen.generateKeys(7);
+        publicKey = keys.getKey();
+        privateKey = keys.getValue();
+        assertNotNull(publicKey);
+        assertNotNull(privateKey);
+        keys = keyGen.generateKeys(16);
+        publicKey = keys.getKey();
+        privateKey = keys.getValue();
+        assertNotNull(publicKey);
+        assertNotNull(privateKey);
+    }
+    
+    @Test
+    public void generatorCreatesPairWhichHasWorkingKeys() {
         String message = "kissa on kiva";
         String cipher = publicKey.encrypt(message);
         String plaintext = privateKey.decrypt(cipher);

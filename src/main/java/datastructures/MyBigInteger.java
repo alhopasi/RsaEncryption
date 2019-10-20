@@ -1,6 +1,7 @@
 package datastructures;
 
 import java.util.Arrays;
+import rsaencryption.utils.Utils;
 
 /**
  * MyBigInteger is a BigInteger implementation
@@ -24,11 +25,12 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
         int[] intArray = stringToIntArray(number);
         array = removeZerosFromBeginning(intArray);
     }
-    
+
     /**
-     * Constructor to create MyBigInteger
+     * Constructor to create MyBigInteger Constructs a number from the bytes
+     * given. Rightmost bit/byte is the least significant.
      *
-     * @param bytes should be bytes with value 0-9.
+     * @param array the bytes given.
      */
     public MyBigInteger(byte[] array) {
         int[] intArray = byteArrayToIntArray(array);
@@ -58,17 +60,18 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
         return res;
     }
 
-    private int[] stringToIntArray(String number) {
+    private static int[] stringToIntArray(String number) {
         int[] numbers = new int[number.length()];
         for (int i = 0; i < number.length(); i++) {
             numbers[i] = number.charAt(i) - 48;
         }
+        numbers = removeZerosFromBeginning(numbers);
         return numbers;
     }
 
     /**
-     * Gives the MyBigIntegers value as integer. If the value is too big to fit
-     * into integer, returns -1.
+     * Returns the MyBigIntegers value as integer. If the value is too big to
+     * fit into integer, returns -1.
      *
      * @return Value of this MyBigInteger.
      */
@@ -89,16 +92,20 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
      */
     public MyBigInteger modPow(MyBigInteger e, MyBigInteger m) {
         MyBigInteger newBigInt = this;
-        for (int bit = e.bitLength() - 2; bit >= 0; bit--) {
-            newBigInt = newBigInt.multiply(newBigInt);
-            newBigInt = newBigInt.mod(m);
-
-            if (e.testBit(bit) == true) {
-                newBigInt = newBigInt.multiply(this).mod(m);
-            }
+        MyBigInteger two = new MyBigInteger("2");
+        if (m.compareTo(MyBigInteger.ONE) == 0) {
+            return MyBigInteger.ZERO;
         }
-        
-        return newBigInt;
+        MyBigInteger r = MyBigInteger.ONE;
+        newBigInt = newBigInt.mod(m);
+        while (e.compareTo(MyBigInteger.ZERO) > 0) {
+            if (e.mod(two).compareTo(MyBigInteger.ONE) == 0) {
+                r = r.multiply(newBigInt).mod(m);
+            }
+            e = e.shiftRightOnce();
+            newBigInt = newBigInt.multiply(newBigInt).mod(m);
+        }
+        return r;
     }
 
     /**
@@ -108,59 +115,68 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
      * @return new MyBigInteger with the value of this + x.
      */
     public MyBigInteger add(MyBigInteger x) {
-        int[] biggerArray;
-        int[] smallerArray;
-        if (this.array.length < x.array.length) {
-            biggerArray = new int[x.array.length + 1];
-            System.arraycopy(x.array, 0, biggerArray, 1, x.array.length);
-            smallerArray = new int[this.array.length];
-            System.arraycopy(this.array, 0, smallerArray, 0, this.array.length);
-        } else {
-            biggerArray = new int[this.array.length + 1];
-            System.arraycopy(this.array, 0, biggerArray, 1, this.array.length);
-            smallerArray = new int[x.array.length];
-            System.arraycopy(x.array, 0, smallerArray, 0, x.array.length);
-        }
+        MyPair<int[], int[]> arrays = getSmallerAndBiggerArray(this.array, x.array);
+        int[] biggerArray = arrays.getKey();
+        int[] smallerArray = arrays.getValue();
         int carry = 0;
         int biggerArrayIndex = 0;
         for (int i = 0; i < smallerArray.length; i++) {
             biggerArrayIndex = biggerArray.length - 1 - i;
             biggerArray[biggerArrayIndex] += carry;
             biggerArray[biggerArrayIndex] += smallerArray[smallerArray.length - 1 - i];
-            if (biggerArray[biggerArrayIndex] > 9) {
-                carry = 1;
-                biggerArray[biggerArrayIndex] -= 10;
-            } else {
-                carry = 0;
-            }
+            carry = addCheckCarry(biggerArray, biggerArrayIndex, carry);
         }
-        biggerArrayIndex--;
         while (carry == 1) {
-            biggerArray[biggerArrayIndex] += 1;
-            if (biggerArray[biggerArrayIndex] > 9) {
-                carry = 1;
-                biggerArray[biggerArrayIndex] -= 10;
-            } else {
-                carry = 0;
-            }
             biggerArrayIndex--;
+            biggerArray[biggerArrayIndex] += 1;
+            carry = addCheckCarry(biggerArray, biggerArrayIndex, carry);
         }
-        int[] finalArray = biggerArray;
-        for (int i = 0; i < biggerArray.length; i++) {
-            if (biggerArray[i] != 0) {
-                if (i == 0) {
-                    break;
-                }
-                finalArray = new int[biggerArray.length - i];
-                System.arraycopy(biggerArray, i, finalArray, 0, finalArray.length);
-                break;
-            }
-            if (i == biggerArray.length - 1) {
-                finalArray = new int[1];
-                finalArray[0] = biggerArray[biggerArray.length - 1];
-            }
-        }
+        int[] finalArray = removeZerosFromBeginning(biggerArray);
         return new MyBigInteger(finalArray);
+    }
+
+    private int addCheckCarry(int[] biggerArray, int biggerArrayIndex, int carry) {
+        if (biggerArray[biggerArrayIndex] > 9) {
+            carry = 1;
+            biggerArray[biggerArrayIndex] -= 10;
+        } else {
+            carry = 0;
+        }
+        return carry;
+    }
+
+    private static MyPair<int[], int[]> getSmallerAndBiggerArray(int[] thisArray, int[] otherArray) {
+        int[] biggerArray;
+        int[] smallerArray;
+        boolean thisBigger = getSmallerAndBiggerCheckIfThisArraytIsBigger(thisArray, otherArray);
+        if (thisBigger) {
+            biggerArray = new int[thisArray.length + 1];
+            Utils.arrayCopyInt(thisArray, 0, biggerArray, 1, thisArray.length);
+            smallerArray = new int[otherArray.length];
+            Utils.arrayCopyInt(otherArray, 0, smallerArray, 0, otherArray.length);
+        } else {
+            biggerArray = new int[otherArray.length + 1];
+            Utils.arrayCopyInt(otherArray, 0, biggerArray, 1, otherArray.length);
+            smallerArray = new int[thisArray.length];
+            Utils.arrayCopyInt(thisArray, 0, smallerArray, 0, thisArray.length);
+        }
+        return new MyPair(biggerArray, smallerArray);
+    }
+    
+    private static boolean getSmallerAndBiggerCheckIfThisArraytIsBigger(int[] thisArray, int[] otherArray) {
+        if (thisArray.length > otherArray.length) {
+            return true;
+        }
+        if (thisArray.length == otherArray.length) {
+            for (int i = 0; i < thisArray.length; i++) {
+                if (thisArray[i] < otherArray[i]) {
+                    return false;
+                } else if (thisArray[i] > otherArray[i]) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -183,49 +199,37 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
      * @return new MyBigInteger with the value of bigger - smaller.
      */
     public MyBigInteger subtract(MyBigInteger x) {
-        int[] biggerArray;
-        int[] smallerArray;
-        if (this.array.length < x.array.length) {
-            biggerArray = new int[x.array.length + 1];
-            System.arraycopy(x.array, 0, biggerArray, 1, x.array.length);
-            smallerArray = new int[this.array.length];
-            System.arraycopy(this.array, 0, smallerArray, 0, this.array.length);
-        } else {
-            biggerArray = new int[this.array.length + 1];
-            System.arraycopy(this.array, 0, biggerArray, 1, this.array.length);
-            smallerArray = new int[x.array.length];
-            System.arraycopy(x.array, 0, smallerArray, 0, x.array.length);
-        }
+        MyPair<int[], int[]> arrays = getSmallerAndBiggerArray(this.array, x.array);
+        int[] biggerArray = arrays.getKey();
+        int[] smallerArray = arrays.getValue();
         int carry = 0;
         int biggerArrayIndex = 0;
         for (int i = 0; i < smallerArray.length; i++) {
             biggerArrayIndex = biggerArray.length - 1 - i;
-            biggerArray[biggerArrayIndex] -= carry;
-            biggerArray[biggerArrayIndex] -= smallerArray[smallerArray.length - 1 - i];
-            if (biggerArray[biggerArrayIndex] < 0) {
-                carry = 1;
-                biggerArray[biggerArrayIndex] += 10;
-            } else {
-                carry = 0;
-            }
+            biggerArray[biggerArrayIndex] -= smallerArray[smallerArray.length - 1 - i] + carry;
+            carry = subtractCheckCarry(biggerArray, biggerArrayIndex, carry);
         }
         biggerArrayIndex--;
         while (carry == 1) {
             biggerArray[biggerArrayIndex] -= 1;
-            if (biggerArray[biggerArrayIndex] < 0) {
-                carry = 1;
-                biggerArray[biggerArrayIndex] += 10;
-            } else {
-                carry = 0;
-            }
+            carry = subtractCheckCarry(biggerArray, biggerArrayIndex, carry);
             biggerArrayIndex--;
         }
         int[] finalArray = removeZerosFromBeginning(biggerArray);
-
         return new MyBigInteger(finalArray);
     }
 
-    private int[] removeZerosFromBeginning(int[] array) {
+    private static int subtractCheckCarry(int[] biggerArray, int biggerArrayIndex, int carry) {
+        if (biggerArray[biggerArrayIndex] < 0) {
+            carry = 1;
+            biggerArray[biggerArrayIndex] += 10;
+        } else {
+            carry = 0;
+        }
+        return carry;
+    }
+
+    private static int[] removeZerosFromBeginning(int[] array) {
         int[] finalArray = array;
         for (int i = 0; i < array.length; i++) {
             if (array[i] != 0) {
@@ -233,7 +237,7 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
                     break;
                 }
                 finalArray = new int[array.length - i];
-                System.arraycopy(array, i, finalArray, 0, finalArray.length);
+                Utils.arrayCopyInt(array, i, finalArray, 0, finalArray.length);
                 break;
             }
             if (i == array.length - 1) {
@@ -254,21 +258,17 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
         if (x.compareTo(MyBigInteger.ZERO) == 0 || this.compareTo(MyBigInteger.ZERO) == 0) {
             return MyBigInteger.ZERO;
         }
-        int[] biggerArray;
-        int[] smallerArray;
-        if (this.array.length < x.array.length) {
-            biggerArray = new int[x.array.length];
-            System.arraycopy(x.array, 0, biggerArray, 0, x.array.length);
-            smallerArray = new int[this.array.length];
-            System.arraycopy(this.array, 0, smallerArray, 0, this.array.length);
-        } else {
-            biggerArray = new int[this.array.length];
-            System.arraycopy(this.array, 0, biggerArray, 0, this.array.length);
-            smallerArray = new int[x.array.length];
-            System.arraycopy(x.array, 0, smallerArray, 0, x.array.length);
-        }
+        MyPair<int[], int[]> arrays = getSmallerAndBiggerArray(this.array, x.array);
+        int[] biggerArray = arrays.getKey();
+        int[] smallerArray = arrays.getValue();
         MyBigInteger bigger = new MyBigInteger(biggerArray);
         int[] result = new int[smallerArray.length + biggerArray.length + 1];
+        multiplyCalculateResult(smallerArray, result, bigger);
+        result = removeZerosFromBeginning(result);
+        return new MyBigInteger(result);
+    }
+
+    private static void multiplyCalculateResult(int[] smallerArray, int[] result, MyBigInteger bigger) {
         for (int i = 0; i < smallerArray.length; i++) {
             MyBigInteger total = MyBigInteger.ZERO;
             for (int j = 0; j < smallerArray[smallerArray.length - 1 - i]; j++) {
@@ -284,8 +284,6 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
                 }
             }
         }
-        result = removeZerosFromBeginning(result);
-        return new MyBigInteger(result);
     }
 
     /**
@@ -309,47 +307,54 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
         if (x.compareTo(MyBigInteger.ZERO) <= 0) {
             throw new NumberFormatException("Divider must be 1 or higher");
         }
-        int compareResult = this.compareTo(x);
-        if (compareResult < 0) {
-            return MyBigInteger.ZERO;
-        } else if (compareResult == 0) {
-            return MyBigInteger.ONE;
+        if (this.compareTo(x) <= 0) {
+            return this.compareTo(x) == 0 ? MyBigInteger.ONE : MyBigInteger.ZERO;
         }
         int[] thisCopy = new int[this.array.length];
-        System.arraycopy(this.array, 0, thisCopy, 0, this.array.length);
+        Utils.arrayCopyInt(this.array, 0, thisCopy, 0, this.array.length);
         MyBigInteger dividend = new MyBigInteger(thisCopy);
-        int thisBeginIndex = 0;
-        int thisEndIndex = 1;
-        int[] result = new int[this.array.length];
-        while (true) {
-            
-            
-            if (thisEndIndex > this.array.length) {
-                break;
-            }
-            int[] longDividerArray = new int[thisEndIndex - thisBeginIndex];
-            System.arraycopy(dividend.array, thisBeginIndex, longDividerArray, 0, thisEndIndex - thisBeginIndex);
-            MyBigInteger longDividend = new MyBigInteger(longDividerArray);
-            int times = 0;
-            if (longDividend.compareTo(x) >= 0) {
-                while (longDividend.compareTo(x) >= 0) {
-                    longDividend = longDividend.subtract(x);
-                    times++;
-                }
-                if (longDividend.compareTo(MyBigInteger.ZERO) == 0) {
-                    thisBeginIndex = thisEndIndex;
-                } else {
-                    int digitsLeftFromSubtract = longDividend.array.length;
-                    thisBeginIndex = thisEndIndex - digitsLeftFromSubtract;
-                    System.arraycopy(longDividend.array, 0, dividend.array, thisBeginIndex, digitsLeftFromSubtract);
-                }
-            }
-            result[thisEndIndex - 1] = times;
-            thisEndIndex++;
-
-        }
+        int[] result = divideDoLongDivision(dividend, this.array, x);
         result = removeZerosFromBeginning(result);
         return new MyBigInteger(result);
+    }
+
+    private static int[] divideDoLongDivision(MyBigInteger dividend, int[] thisArray, MyBigInteger x) {
+        int thisBeginIndex = 0;
+        int thisEndIndex = 1;
+        int[] result = new int[thisArray.length];
+        while (true) {
+            if (thisEndIndex > thisArray.length) {
+                break;
+            }
+            MyBigInteger longDividend = divideCheckLongDividend(thisBeginIndex, thisEndIndex, dividend.array);
+            int times = 0;
+            while (longDividend.compareTo(x) >= 0) {
+                longDividend = longDividend.subtract(x);
+                times++;
+            }
+            thisBeginIndex = divideCheckForSubtract(dividend, longDividend, thisBeginIndex, thisEndIndex);
+            result[thisEndIndex - 1] = times;
+            thisEndIndex++;
+        }
+        return result;
+    }
+
+    private static int divideCheckForSubtract(MyBigInteger dividend, MyBigInteger longDividend, int thisBeginIndex, int thisEndIndex) {
+        if (longDividend.compareTo(MyBigInteger.ZERO) == 0) {
+            thisBeginIndex = thisEndIndex;
+        } else {
+            int digitsLeftFromSubtract = longDividend.array.length;
+            thisBeginIndex = thisEndIndex - digitsLeftFromSubtract;
+            Utils.arrayCopyInt(longDividend.array, 0, dividend.array, thisBeginIndex, digitsLeftFromSubtract);
+        }
+        return thisBeginIndex;
+    }
+
+    private static MyBigInteger divideCheckLongDividend(int thisBeginIndex, int thisEndIndex, int[] dividendArray) {
+        int[] longDividerArray = new int[thisEndIndex - thisBeginIndex];
+        Utils.arrayCopyInt(dividendArray, thisBeginIndex, longDividerArray, 0, thisEndIndex - thisBeginIndex);
+        MyBigInteger longDividend = new MyBigInteger(longDividerArray);
+        return longDividend;
     }
 
     /**
@@ -381,15 +386,8 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
     }
 
     private MyBigInteger shiftLeftOnce() {
-        int[] newArray;
         boolean bit = false;
-        if (this.array[0] >= 5) {
-            newArray = new int[this.array.length + 1];
-            System.arraycopy(this.array, 0, newArray, 1, this.array.length);
-        } else {
-            newArray = new int[this.array.length];
-            System.arraycopy(this.array, 0, newArray, 0, this.array.length);
-        }
+        int[] newArray = shiftLeftCopyArray(this.array);
         for (int i = newArray.length - 1; i >= 0; i--) {
             newArray[i] = newArray[i] << 1;
             boolean tmp = newArray[i] > 9;
@@ -404,19 +402,26 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
         return new MyBigInteger(newArray);
     }
 
-    private MyBigInteger shiftRightOnce() {
+    private int[] shiftLeftCopyArray(int[] thisArray) {
         int[] newArray;
-        boolean bit = false;
-        if (this.array[0] == 1) {
-            if (this.array.length == 1) {
-                return MyBigInteger.ZERO;
-            }
-            newArray = new int[this.array.length - 1];
-            System.arraycopy(this.array, 1, newArray, 0, newArray.length);
-            bit = true;
+        if (thisArray[0] >= 5) {
+            newArray = new int[thisArray.length + 1];
+            Utils.arrayCopyInt(thisArray, 0, newArray, 1, thisArray.length);
         } else {
-            newArray = new int[this.array.length];
-            System.arraycopy(this.array, 0, newArray, 0, this.array.length);
+            newArray = new int[thisArray.length];
+            Utils.arrayCopyInt(thisArray, 0, newArray, 0, thisArray.length);
+        }
+        return newArray;
+    }
+
+    private MyBigInteger shiftRightOnce() {
+        boolean bit = false;
+        if (this.array[0] == 1 && this.array.length == 1) {
+            return MyBigInteger.ZERO;
+        }
+        int[] newArray = shiftRightCopyArray(this.array);
+        if (this.array.length != newArray.length) {
+            bit = true;
         }
         for (int i = 0; i < newArray.length; i++) {
             boolean tmp = newArray[i] % 2 == 1;
@@ -429,12 +434,24 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
         return new MyBigInteger(newArray);
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        return hash;
+    private int[] shiftRightCopyArray(int[] thisArray) {
+        int[] newArray;
+        if (thisArray[0] == 1) {
+            newArray = new int[thisArray.length - 1];
+            Utils.arrayCopyInt(thisArray, 1, newArray, 0, newArray.length);
+        } else {
+            newArray = new int[thisArray.length];
+            Utils.arrayCopyInt(thisArray, 0, newArray, 0, thisArray.length);
+        }
+        return newArray;
     }
 
+    /**
+     * Equals checks from the MyBigIntegers array if it's the same.
+     *
+     * @param obj Another object to compare.
+     * @return true if another object is same.
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -454,7 +471,8 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
     }
 
     /**
-     * Compares this with another MyBigInteger
+     * Compares this with another MyBigInteger. Compares the MyBigIntegers
+     * arrays length. If they are same, compares the values.
      *
      * @param other MyBigInteger that is compared to this
      * @return result of the comparison
@@ -513,21 +531,36 @@ public class MyBigInteger implements Comparable<MyBigInteger> {
         return result.array;
     }
 
-    public boolean[] toBitArray() {
-        String thisBits = "";
+    private boolean[] toBitArray() {
+        boolean[] thisBits = new boolean[100];
+        int index = 0;
         MyBigInteger toCheck = this;
         while (toCheck.compareTo(MyBigInteger.ZERO) > 0) {
-            if (toCheck.array[toCheck.array.length - 1] % 2 == 1) {
-                thisBits = "1" + thisBits;
-            } else {
-                thisBits = "0" + thisBits;
+            if (index == thisBits.length) {
+                boolean[] newBits = new boolean[thisBits.length * 2];
+                Utils.arrayCopyBoolean(thisBits, 0, newBits, thisBits.length, thisBits.length);
+                thisBits = newBits;
             }
+            thisBits[thisBits.length - 1 - index] = toCheck.array[toCheck.array.length - 1] % 2 == 1;
             toCheck = toCheck.shiftRightOnce();
+            index++;
         }
-        boolean[] bitsToReturn = new boolean[thisBits.length()];
-        for (int i = 0; i < thisBits.length(); i++) {
-            bitsToReturn[i] = thisBits.charAt(i) == '1';
+        thisBits = removeFalseFromBeginning(thisBits);
+        return thisBits;
+    }
+
+    private boolean[] removeFalseFromBeginning(boolean[] thisBits) {
+        for (int i = 0; i <= thisBits.length; i++) {
+            if (i == thisBits.length) {
+                return new boolean[1];
+            }
+            if (thisBits[i] == true) {
+                boolean[] newBits = new boolean[thisBits.length - i];
+                Utils.arrayCopyBoolean(thisBits, i, newBits, 0, newBits.length);
+                thisBits = newBits;
+                break;
+            }
         }
-        return bitsToReturn;
+        return thisBits;
     }
 }

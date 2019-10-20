@@ -26,7 +26,7 @@ public class TextUi {
      */
     public TextUi(IoController io) {
         this.io = io;
-        bitLength = 2048;
+        bitLength = 512;
     }
 
     /**
@@ -51,7 +51,7 @@ public class TextUi {
                 save();
             } else if (input.equals("l")) {
                 load();
-            } else if (input.equals("b")) {
+            } else if (input.equals("k")) {
                 changeBitLength();
             } else {
                 System.out.println("Unknown command");
@@ -155,7 +155,7 @@ public class TextUi {
         System.out.println("d - decrypt a text");
         System.out.println("s - save keys");
         System.out.println("l - load keys");
-        System.out.println("b - change key bit size");
+        System.out.println("k - change key bit size");
         System.out.println("q - quit");
     }
 

@@ -8,6 +8,18 @@ import datastructures.MyBigInteger;
  */
 public class Utils {
 
+    public static void arrayCopyInt(int[] oldArray, int oldArrayStartingIndex, int[] newArray, int newArrayStartingIndex, int length) {
+        for (int i = 0; i < length; i++) {
+            newArray[i + newArrayStartingIndex] = oldArray[i + oldArrayStartingIndex];
+        }
+    }
+    
+    public static void arrayCopyBoolean(boolean[] oldArray, int oldArrayStartingIndex, boolean[] newArray, int newArrayStartingIndex, int length) {
+        for (int i = 0; i < length; i++) {
+            newArray[i + newArrayStartingIndex] = oldArray[i + oldArrayStartingIndex];
+        }
+    }
+    
     /**
      * Converts a decimal integer to hex String.
      *
@@ -73,26 +85,6 @@ public class Utils {
             value = value.multiply(sixteen).add(intValue);
         }
         return value;
-    }
-
-    /**
-     * Powers the given integer and the takes modulo
-     * NOTE: This will be removed and made into MyMyBigIntegers own method.
-     * @param x Integer given
-     * @param e The power
-     * @param m The modulo
-     * @return the result
-     */
-    public static MyBigInteger powerMod(MyBigInteger x, MyBigInteger e, MyBigInteger m) {
-        MyBigInteger y = x;
-        
-        for (int bit = e.bitLength() - 2; bit >= 0; bit--) {
-            y = (y.multiply(y)).mod(m);
-            if (e.testBit(bit) == true) {
-                y = y.multiply(x).mod(m);
-            }
-        }
-        return y;
     }
 
     private static String stringToHex(String message) {
