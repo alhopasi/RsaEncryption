@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Validators.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">RsaEncryption</a> &gt; <a href="index.source.html" class="el_package">rsaencryption.utils</a> &gt; <span class="el_source">Validators.java</span></div><h1>Validators.java</h1><pre class="source lang-java linenums">package rsaencryption.utils;
+
+import java.io.File;
+import rsaencryption.domain.PrivateKey;
+import rsaencryption.domain.PublicKey;
+
+/**
+ * This class contains methods to validate inputs or to check things.
+ */
+<span class="nc" id="L10">public class Validators {</span>
+
+    /**
+     * Checks that &quot;keys&quot; folder exists under project folder. If not, creates
+     * it.
+     *
+     * @return File keysFolder
+     */
+    public static File checkKeysFolderExists() {
+<span class="fc" id="L19">        String folderName = &quot;keys/&quot;;</span>
+<span class="fc" id="L20">        File folder = new File(folderName);</span>
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">        if (!folder.exists()) {</span>
+<span class="nc" id="L22">            folder.mkdir();</span>
+        }
+<span class="fc" id="L24">        return folder;</span>
+    }
+
+    /**
+     * Checks that filename for saving contains only letters
+     *
+     * @param input filename for saving
+     * @return true if valid filename for saving
+     */
+    public static boolean checkValidSaveInput(String input) {
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (!input.matches(&quot;[a-zA-Z]+&quot;)) {</span>
+<span class="fc" id="L35">            System.out.println(&quot;ERROR: Input must include only letters&quot;);</span>
+<span class="fc" id="L36">            return false;</span>
+        }
+<span class="fc" id="L38">        return true;</span>
+    }
+
+    /**
+     * Checks that filename for key(s) is valid when loading keys.
+     *
+     * @param input filename for key(s)
+     * @return true if key(s) name is valid
+     */
+    public static boolean checkValidKeyNameInput(String input) {
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (!input.matches(&quot;[a-zA-Z]+.(public|private)|[a-zA-Z]+&quot;)) {</span>
+<span class="fc" id="L49">            System.out.println(&quot;ERROR: Key name must be [name], [name].public or [name].private&quot;);</span>
+<span class="fc" id="L50">            return false;</span>
+        }
+<span class="fc" id="L52">        return true;</span>
+    }
+
+    /**
+     * Checks that public key is not null
+     * 
+     * @param publicKey
+     * @return true if public key exists
+     */
+    public static boolean checkPublicKey(PublicKey publicKey) {
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if (publicKey == null) {</span>
+<span class="fc" id="L63">            System.out.println(&quot;ERROR: Public key not found.&quot;);</span>
+<span class="fc" id="L64">            return false;</span>
+        }
+<span class="fc" id="L66">        return true;</span>
+    }
+    
+    /**
+     * Checks that private key is not null
+     *
+     * @param privateKey
+     * @return true if private key exists
+     */
+    public static boolean checkPrivateKey(PrivateKey privateKey) {
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (privateKey == null) {</span>
+<span class="fc" id="L77">            System.out.println(&quot;ERROR: Private key not found.&quot;);</span>
+<span class="fc" id="L78">            return false;</span>
+        }
+<span class="fc" id="L80">        return true;</span>
+    }
+    
+    /**
+     * Checks that a string (key) is in hex format
+     * 
+     * @param hex The string (key)
+     * @return Returns true if the string is a valid hex.
+     */
+    public static boolean checkValidKey(String hex) {
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (!hex.matches(&quot;[0-9A-F]+&quot;)) {</span>
+<span class="fc" id="L91">            System.out.println(&quot;ERROR: Key is not in hex format: 0-9,A-F&quot;);</span>
+<span class="fc" id="L92">            return false;</span>
+        }
+<span class="fc" id="L94">        return true;</span>
+    }
+
+    /**
+     * Checks that hex is correct length and includes correct characters when trying to decrypt
+     * 
+     * @param hex Hex that is going to be decrypted
+     * @return true if hex is valid and correct length
+     */
+    public static boolean checkValidHexInputOnDecrypt(String hex) {
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (!hex.matches(&quot;[0-9A-F]+&quot;)) {</span>
+<span class="fc" id="L105">            System.out.println(&quot;ERROR: Input must include only hex characters: 0-9,A-F&quot;);</span>
+<span class="fc" id="L106">            return false;</span>
+        }
+<span class="fc" id="L108">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

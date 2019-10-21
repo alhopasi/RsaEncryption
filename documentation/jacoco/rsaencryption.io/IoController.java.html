@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">RsaEncryption</a> &gt; <a href="index.source.html" class="el_package">rsaencryption.io</a> &gt; <span class="el_source">IoController.java</span></div><h1>IoController.java</h1><pre class="source lang-java linenums">package rsaencryption.io;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+import rsaencryption.domain.PrivateKey;
+import rsaencryption.domain.PublicKey;
+import rsaencryption.utils.Utils;
+import rsaencryption.utils.Validators;
+import static rsaencryption.utils.Validators.checkValidKey;
+
+public class IoController {
+
+    private Scanner scanner;
+
+<span class="fc" id="L19">    public IoController(Scanner scanner) {</span>
+<span class="fc" id="L20">        this.scanner = scanner;</span>
+<span class="fc" id="L21">    }</span>
+
+    public String readInput(String line) {
+<span class="fc" id="L24">        System.out.print(line);</span>
+<span class="fc" id="L25">        return scanner.nextLine();</span>
+    }
+
+    public PrivateKey loadPrivateKey(File folder, String keyName) {
+<span class="fc" id="L29">        File file = new File(folder + &quot;/&quot; + keyName);</span>
+<span class="fc bfc" id="L30" title="All 2 branches covered.">        if (!file.exists()) {</span>
+<span class="fc" id="L31">            System.out.println(&quot;ERROR: File &quot; + file.getPath() + &quot; does not exist&quot;);</span>
+<span class="fc" id="L32">            return null;</span>
+        }
+<span class="fc" id="L34">        try (BufferedReader reader = new BufferedReader(new FileReader(folder + &quot;/&quot; + keyName))) {</span>
+<span class="fc" id="L35">            String first = reader.readLine();</span>
+<span class="fc" id="L36">            String second = reader.readLine();</span>
+<span class="pc bpc" id="L37" title="2 of 4 branches missed.">            if (!checkValidKey(first) || !checkValidKey(second)) {</span>
+<span class="nc" id="L38">                return null;</span>
+            }
+<span class="fc" id="L40">            System.out.println(&quot;Private key loaded successfully&quot;);</span>
+<span class="fc" id="L41">            return new PrivateKey(Utils.hexToDecimal(first), Utils.hexToDecimal(second));</span>
+<span class="nc" id="L42">        } catch (IOException e) {</span>
+<span class="nc" id="L43">            System.out.println(&quot;ERROR: &quot; + e.getMessage());</span>
+<span class="nc" id="L44">            return null;</span>
+        }
+    }
+
+    public PublicKey loadPublicKey(File folder, String keyName) {
+<span class="fc" id="L49">        File file = new File(folder + &quot;/&quot; + keyName);</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        if (!file.exists()) {</span>
+<span class="fc" id="L51">            System.out.println(&quot;ERROR: File &quot; + file.getPath() + &quot; does not exist&quot;);</span>
+<span class="fc" id="L52">            return null;</span>
+        }
+<span class="fc" id="L54">        try (BufferedReader reader = new BufferedReader(new FileReader(folder + &quot;/&quot; + keyName))) {</span>
+<span class="fc" id="L55">            String first = reader.readLine();</span>
+<span class="fc" id="L56">            String second = reader.readLine();</span>
+<span class="pc bpc" id="L57" title="2 of 4 branches missed.">            if (!Validators.checkValidKey(first) || !Validators.checkValidKey(second)) {</span>
+<span class="nc" id="L58">                return null;</span>
+            }
+<span class="fc" id="L60">            System.out.println(&quot;Public key loaded successfully&quot;);</span>
+<span class="fc" id="L61">            return new PublicKey(Utils.hexToDecimal(first), Utils.hexToDecimal(second));</span>
+<span class="nc" id="L62">        } catch (IOException e) {</span>
+<span class="nc" id="L63">            System.out.println(&quot;ERROR: &quot; + e.getMessage());</span>
+<span class="nc" id="L64">            return null;</span>
+        }
+    }
+
+    public boolean saveKeys(File folder, String keyName, PublicKey publicKey, PrivateKey privateKey) {
+<span class="fc" id="L69">        try (FileWriter fileWriter = new FileWriter(folder + &quot;/&quot; + keyName + &quot;.public&quot;)) {</span>
+<span class="fc" id="L70">            fileWriter.write(publicKey.toString());</span>
+<span class="fc" id="L71">        } catch (IOException e) {</span>
+<span class="fc" id="L72">            System.out.println(&quot;ERROR: &quot; + e.getMessage());</span>
+<span class="fc" id="L73">            return false;</span>
+<span class="fc" id="L74">        }</span>
+<span class="fc" id="L75">        try (FileWriter fileWriter = new FileWriter(folder + &quot;/&quot; + keyName + &quot;.private&quot;)) {</span>
+<span class="fc" id="L76">            fileWriter.write(privateKey.toString());</span>
+<span class="nc" id="L77">        } catch (IOException e) {</span>
+<span class="nc" id="L78">            System.out.println(&quot;ERROR: &quot; + e.getMessage());</span>
+<span class="nc" id="L79">            return false;</span>
+<span class="fc" id="L80">        }</span>
+<span class="fc" id="L81">        System.out.println(&quot;Public key saved to &quot; + folder.getAbsolutePath() + &quot;/&quot; + keyName + &quot;.public&quot;);</span>
+<span class="fc" id="L82">        System.out.println(&quot;Private key saved to &quot; + folder.getAbsolutePath() + &quot;/&quot; + keyName + &quot;.private&quot;);</span>
+<span class="fc" id="L83">        return true;</span>
+    }
+
+    public String readPlainText() {
+<span class="fc" id="L87">        String plaintext = readInput(&quot;Enter input: &quot;);</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (plaintext.length() &gt; 256) {</span>
+<span class="fc" id="L89">            System.out.println(&quot;Input must be 256 characters or less.&quot;);</span>
+<span class="fc" id="L90">            return &quot;&quot;;</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        } else if (plaintext.length() == 0) {</span>
+<span class="fc" id="L92">            System.out.println(&quot;Input can not be empty&quot;);</span>
+<span class="fc" id="L93">            return &quot;&quot;;</span>
+        }
+<span class="fc" id="L95">        return plaintext;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,567 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MyBigInteger.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">RsaEncryption</a> &gt; <a href="index.source.html" class="el_package">datastructures</a> &gt; <span class="el_source">MyBigInteger.java</span></div><h1>MyBigInteger.java</h1><pre class="source lang-java linenums">package datastructures;
+
+import java.util.Arrays;
+import rsaencryption.utils.Utils;
+
+/**
+ * MyBigInteger is a BigInteger implementation
+ *
+ * @author alhopasi
+ */
+public class MyBigInteger implements Comparable&lt;MyBigInteger&gt; {
+
+    private final int[] array;
+    private boolean[] bits;
+
+<span class="fc" id="L16">    public static final MyBigInteger ONE = new MyBigInteger(&quot;1&quot;);</span>
+<span class="fc" id="L17">    public static final MyBigInteger ZERO = new MyBigInteger(&quot;0&quot;);</span>
+
+    /**
+     * Constructor to create MyBigInteger
+     *
+     * @param number Value given to MyBigInteger
+     */
+<span class="fc" id="L24">    public MyBigInteger(String number) {</span>
+<span class="fc" id="L25">        int[] intArray = stringToIntArray(number);</span>
+<span class="fc" id="L26">        array = removeZerosFromBeginning(intArray);</span>
+<span class="fc" id="L27">    }</span>
+
+    /**
+     * Constructor to create MyBigInteger Constructs a number from the bytes
+     * given. Rightmost bit/byte is the least significant.
+     *
+     * @param array the bytes given.
+     */
+<span class="fc" id="L35">    public MyBigInteger(byte[] array) {</span>
+<span class="fc" id="L36">        int[] intArray = byteArrayToIntArray(array);</span>
+<span class="fc" id="L37">        this.array = removeZerosFromBeginning(intArray);</span>
+<span class="fc" id="L38">    }</span>
+
+    /**
+     * Constructor to create MyBigInteger
+     *
+     * @param array int array, where each int should be number 0-9.
+     */
+<span class="fc" id="L45">    public MyBigInteger(int[] array) {</span>
+<span class="fc" id="L46">        this.array = removeZerosFromBeginning(array);</span>
+<span class="fc" id="L47">    }</span>
+
+    /**
+     * String representation of this MyBigIntegers value
+     *
+     * @return Value of the MyBigInteger as a String
+     */
+    @Override
+    public String toString() {
+<span class="fc" id="L56">        String res = &quot;&quot;;</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        for (int i = 0; i &lt; array.length; i++) {</span>
+<span class="fc" id="L58">            res += Integer.toString(array[i]);</span>
+        }
+<span class="fc" id="L60">        return res;</span>
+    }
+
+    private static int[] stringToIntArray(String number) {
+<span class="fc" id="L64">        int[] numbers = new int[number.length()];</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        for (int i = 0; i &lt; number.length(); i++) {</span>
+<span class="fc" id="L66">            numbers[i] = number.charAt(i) - 48;</span>
+        }
+<span class="fc" id="L68">        numbers = removeZerosFromBeginning(numbers);</span>
+<span class="fc" id="L69">        return numbers;</span>
+    }
+
+    /**
+     * Returns the MyBigIntegers value as integer. If the value is too big to
+     * fit into integer, returns -1.
+     *
+     * @return Value of this MyBigInteger.
+     */
+    public int intValue() {
+        try {
+<span class="fc" id="L80">            return Integer.valueOf(toString());</span>
+<span class="fc" id="L81">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L82">            return -1;</span>
+        }
+    }
+
+    /**
+     * Powers MyBigInteger with exponent and the calculates the modulo.
+     *
+     * @param e The power
+     * @param m The modulo
+     * @return the result
+     */
+    public MyBigInteger modPow(MyBigInteger e, MyBigInteger m) {
+<span class="fc" id="L94">        MyBigInteger newBigInt = this;</span>
+<span class="fc" id="L95">        MyBigInteger two = new MyBigInteger(&quot;2&quot;);</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (m.compareTo(MyBigInteger.ONE) == 0) {</span>
+<span class="fc" id="L97">            return MyBigInteger.ZERO;</span>
+        }
+<span class="fc" id="L99">        MyBigInteger r = MyBigInteger.ONE;</span>
+<span class="fc" id="L100">        newBigInt = newBigInt.mod(m);</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        while (e.compareTo(MyBigInteger.ZERO) &gt; 0) {</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">            if (e.mod(two).compareTo(MyBigInteger.ONE) == 0) {</span>
+<span class="fc" id="L103">                r = r.multiply(newBigInt).mod(m);</span>
+            }
+<span class="fc" id="L105">            e = e.shiftRightOnce();</span>
+<span class="fc" id="L106">            newBigInt = newBigInt.multiply(newBigInt).mod(m);</span>
+        }
+<span class="fc" id="L108">        return r;</span>
+    }
+
+    /**
+     * Calculates the sum of this and another MyBigInteger.
+     *
+     * @param x MyBigInteger that is added.
+     * @return new MyBigInteger with the value of this + x.
+     */
+    public MyBigInteger add(MyBigInteger x) {
+<span class="fc" id="L118">        MyPair&lt;int[], int[]&gt; arrays = getSmallerAndBiggerArray(this.array, x.array);</span>
+<span class="fc" id="L119">        int[] biggerArray = arrays.getKey();</span>
+<span class="fc" id="L120">        int[] smallerArray = arrays.getValue();</span>
+<span class="fc" id="L121">        int carry = 0;</span>
+<span class="fc" id="L122">        int biggerArrayIndex = 0;</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        for (int i = 0; i &lt; smallerArray.length; i++) {</span>
+<span class="fc" id="L124">            biggerArrayIndex = biggerArray.length - 1 - i;</span>
+<span class="fc" id="L125">            biggerArray[biggerArrayIndex] += carry;</span>
+<span class="fc" id="L126">            biggerArray[biggerArrayIndex] += smallerArray[smallerArray.length - 1 - i];</span>
+<span class="fc" id="L127">            carry = addCheckCarry(biggerArray, biggerArrayIndex, carry);</span>
+        }
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        while (carry == 1) {</span>
+<span class="fc" id="L130">            biggerArrayIndex--;</span>
+<span class="fc" id="L131">            biggerArray[biggerArrayIndex] += 1;</span>
+<span class="fc" id="L132">            carry = addCheckCarry(biggerArray, biggerArrayIndex, carry);</span>
+        }
+<span class="fc" id="L134">        int[] finalArray = removeZerosFromBeginning(biggerArray);</span>
+<span class="fc" id="L135">        return new MyBigInteger(finalArray);</span>
+    }
+
+    private int addCheckCarry(int[] biggerArray, int biggerArrayIndex, int carry) {
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        if (biggerArray[biggerArrayIndex] &gt; 9) {</span>
+<span class="fc" id="L140">            carry = 1;</span>
+<span class="fc" id="L141">            biggerArray[biggerArrayIndex] -= 10;</span>
+        } else {
+<span class="fc" id="L143">            carry = 0;</span>
+        }
+<span class="fc" id="L145">        return carry;</span>
+    }
+
+    private static MyPair&lt;int[], int[]&gt; getSmallerAndBiggerArray(int[] thisArray, int[] otherArray) {
+        int[] biggerArray;
+        int[] smallerArray;
+<span class="fc" id="L151">        boolean thisBigger = getSmallerAndBiggerCheckIfThisArraytIsBigger(thisArray, otherArray);</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        if (thisBigger) {</span>
+<span class="fc" id="L153">            biggerArray = new int[thisArray.length + 1];</span>
+<span class="fc" id="L154">            Utils.arrayCopyInt(thisArray, 0, biggerArray, 1, thisArray.length);</span>
+<span class="fc" id="L155">            smallerArray = new int[otherArray.length];</span>
+<span class="fc" id="L156">            Utils.arrayCopyInt(otherArray, 0, smallerArray, 0, otherArray.length);</span>
+        } else {
+<span class="fc" id="L158">            biggerArray = new int[otherArray.length + 1];</span>
+<span class="fc" id="L159">            Utils.arrayCopyInt(otherArray, 0, biggerArray, 1, otherArray.length);</span>
+<span class="fc" id="L160">            smallerArray = new int[thisArray.length];</span>
+<span class="fc" id="L161">            Utils.arrayCopyInt(thisArray, 0, smallerArray, 0, thisArray.length);</span>
+        }
+<span class="fc" id="L163">        return new MyPair(biggerArray, smallerArray);</span>
+    }
+    
+    private static boolean getSmallerAndBiggerCheckIfThisArraytIsBigger(int[] thisArray, int[] otherArray) {
+<span class="fc bfc" id="L167" title="All 2 branches covered.">        if (thisArray.length &gt; otherArray.length) {</span>
+<span class="fc" id="L168">            return true;</span>
+        }
+<span class="fc bfc" id="L170" title="All 2 branches covered.">        if (thisArray.length == otherArray.length) {</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">            for (int i = 0; i &lt; thisArray.length; i++) {</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">                if (thisArray[i] &lt; otherArray[i]) {</span>
+<span class="fc" id="L173">                    return false;</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">                } else if (thisArray[i] &gt; otherArray[i]) {</span>
+<span class="fc" id="L175">                    return true;</span>
+                }
+            }
+        }
+<span class="fc" id="L179">        return false;</span>
+    }
+    
+    /**
+     * Tests if a bit at certain index is positive. Index starts at 0, being the
+     * least significant.
+     *
+     * @param index
+     * @return true or false
+     */
+    public boolean testBit(int index) {
+<span class="fc" id="L190">        bits = getBitArray();</span>
+<span class="fc" id="L191">        return bits[bits.length - 1 - index];</span>
+    }
+
+    /**
+     * Subtracts the value of this and another MyBigInteger. The value is
+     * subtracted from bigger MyBigInteger.
+     *
+     * @param x MyBigInteger that is used in the process.
+     * @return new MyBigInteger with the value of bigger - smaller.
+     */
+    public MyBigInteger subtract(MyBigInteger x) {
+<span class="fc" id="L202">        MyPair&lt;int[], int[]&gt; arrays = getSmallerAndBiggerArray(this.array, x.array);</span>
+<span class="fc" id="L203">        int[] biggerArray = arrays.getKey();</span>
+<span class="fc" id="L204">        int[] smallerArray = arrays.getValue();</span>
+<span class="fc" id="L205">        int carry = 0;</span>
+<span class="fc" id="L206">        int biggerArrayIndex = 0;</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        for (int i = 0; i &lt; smallerArray.length; i++) {</span>
+<span class="fc" id="L208">            biggerArrayIndex = biggerArray.length - 1 - i;</span>
+<span class="fc" id="L209">            biggerArray[biggerArrayIndex] -= smallerArray[smallerArray.length - 1 - i] + carry;</span>
+<span class="fc" id="L210">            carry = subtractCheckCarry(biggerArray, biggerArrayIndex, carry);</span>
+        }
+<span class="fc" id="L212">        biggerArrayIndex--;</span>
+<span class="fc bfc" id="L213" title="All 2 branches covered.">        while (carry == 1) {</span>
+<span class="fc" id="L214">            biggerArray[biggerArrayIndex] -= 1;</span>
+<span class="fc" id="L215">            carry = subtractCheckCarry(biggerArray, biggerArrayIndex, carry);</span>
+<span class="fc" id="L216">            biggerArrayIndex--;</span>
+        }
+<span class="fc" id="L218">        int[] finalArray = removeZerosFromBeginning(biggerArray);</span>
+<span class="fc" id="L219">        return new MyBigInteger(finalArray);</span>
+    }
+
+    private static int subtractCheckCarry(int[] biggerArray, int biggerArrayIndex, int carry) {
+<span class="fc bfc" id="L223" title="All 2 branches covered.">        if (biggerArray[biggerArrayIndex] &lt; 0) {</span>
+<span class="fc" id="L224">            carry = 1;</span>
+<span class="fc" id="L225">            biggerArray[biggerArrayIndex] += 10;</span>
+        } else {
+<span class="fc" id="L227">            carry = 0;</span>
+        }
+<span class="fc" id="L229">        return carry;</span>
+    }
+
+    private static int[] removeZerosFromBeginning(int[] array) {
+<span class="fc" id="L233">        int[] finalArray = array;</span>
+<span class="fc bfc" id="L234" title="All 2 branches covered.">        for (int i = 0; i &lt; array.length; i++) {</span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">            if (array[i] != 0) {</span>
+<span class="fc bfc" id="L236" title="All 2 branches covered.">                if (i == 0) {</span>
+<span class="fc" id="L237">                    break;</span>
+                }
+<span class="fc" id="L239">                finalArray = new int[array.length - i];</span>
+<span class="fc" id="L240">                Utils.arrayCopyInt(array, i, finalArray, 0, finalArray.length);</span>
+<span class="fc" id="L241">                break;</span>
+            }
+<span class="fc bfc" id="L243" title="All 2 branches covered.">            if (i == array.length - 1) {</span>
+<span class="fc" id="L244">                finalArray = new int[1];</span>
+<span class="fc" id="L245">                finalArray[0] = array[array.length - 1];</span>
+            }
+        }
+<span class="fc" id="L248">        return finalArray;</span>
+    }
+
+    /**
+     * Multiplies the MyBigInteger with another one.
+     *
+     * @param x multiplyer.
+     * @return new MyBigInteger, that is the result of multiplication.
+     */
+    public MyBigInteger multiply(MyBigInteger x) {
+<span class="fc bfc" id="L258" title="All 4 branches covered.">        if (x.compareTo(MyBigInteger.ZERO) == 0 || this.compareTo(MyBigInteger.ZERO) == 0) {</span>
+<span class="fc" id="L259">            return MyBigInteger.ZERO;</span>
+        }
+<span class="fc" id="L261">        MyPair&lt;int[], int[]&gt; arrays = getSmallerAndBiggerArray(this.array, x.array);</span>
+<span class="fc" id="L262">        int[] biggerArray = arrays.getKey();</span>
+<span class="fc" id="L263">        int[] smallerArray = arrays.getValue();</span>
+<span class="fc" id="L264">        MyBigInteger bigger = new MyBigInteger(biggerArray);</span>
+<span class="fc" id="L265">        int[] result = new int[smallerArray.length + biggerArray.length + 1];</span>
+<span class="fc" id="L266">        multiplyCalculateResult(smallerArray, result, bigger);</span>
+<span class="fc" id="L267">        result = removeZerosFromBeginning(result);</span>
+<span class="fc" id="L268">        return new MyBigInteger(result);</span>
+    }
+
+    private static void multiplyCalculateResult(int[] smallerArray, int[] result, MyBigInteger bigger) {
+<span class="fc bfc" id="L272" title="All 2 branches covered.">        for (int i = 0; i &lt; smallerArray.length; i++) {</span>
+<span class="fc" id="L273">            MyBigInteger total = MyBigInteger.ZERO;</span>
+<span class="fc bfc" id="L274" title="All 2 branches covered.">            for (int j = 0; j &lt; smallerArray[smallerArray.length - 1 - i]; j++) {</span>
+<span class="fc" id="L275">                total = total.add(bigger);</span>
+            }
+<span class="fc bfc" id="L277" title="All 2 branches covered.">            for (int j = 0; j &lt; total.array.length; j++) {</span>
+<span class="fc" id="L278">                int resultIndex = result.length - i - j - 1;</span>
+<span class="fc" id="L279">                int totalIndex = total.array.length - j - 1;</span>
+<span class="fc" id="L280">                result[resultIndex] += total.array[totalIndex];</span>
+<span class="fc bfc" id="L281" title="All 2 branches covered.">                if (result[resultIndex] &gt; 9) {</span>
+<span class="fc" id="L282">                    result[resultIndex] -= 10;</span>
+<span class="fc" id="L283">                    result[resultIndex - 1] += 1;</span>
+                }
+            }
+        }
+<span class="fc" id="L287">    }</span>
+
+    /**
+     * Calculates this mod other, where this and other are MyBigIntegers.
+     *
+     * @param m The modulo taken from this.
+     * @return new MyBigInteger with the modulo result as value.
+     */
+    public MyBigInteger mod(MyBigInteger m) {
+<span class="fc" id="L296">        MyBigInteger divided = this.divide(m);</span>
+<span class="fc" id="L297">        return this.subtract(divided.multiply(m));</span>
+    }
+
+    /**
+     * Divides this MyBigInteger with another one.
+     *
+     * @param x The divider as MyBigInteger.
+     * @return new MyBigInteger with the result as value.
+     */
+    public MyBigInteger divide(MyBigInteger x) {
+<span class="pc bpc" id="L307" title="1 of 2 branches missed.">        if (x.compareTo(MyBigInteger.ZERO) &lt;= 0) {</span>
+<span class="nc" id="L308">            throw new NumberFormatException(&quot;Divider must be 1 or higher&quot;);</span>
+        }
+<span class="fc bfc" id="L310" title="All 2 branches covered.">        if (this.compareTo(x) &lt;= 0) {</span>
+<span class="fc bfc" id="L311" title="All 2 branches covered.">            return this.compareTo(x) == 0 ? MyBigInteger.ONE : MyBigInteger.ZERO;</span>
+        }
+<span class="fc" id="L313">        int[] thisCopy = new int[this.array.length];</span>
+<span class="fc" id="L314">        Utils.arrayCopyInt(this.array, 0, thisCopy, 0, this.array.length);</span>
+<span class="fc" id="L315">        MyBigInteger dividend = new MyBigInteger(thisCopy);</span>
+<span class="fc" id="L316">        int[] result = divideDoLongDivision(dividend, this.array, x);</span>
+<span class="fc" id="L317">        result = removeZerosFromBeginning(result);</span>
+<span class="fc" id="L318">        return new MyBigInteger(result);</span>
+    }
+
+    private static int[] divideDoLongDivision(MyBigInteger dividend, int[] thisArray, MyBigInteger x) {
+<span class="fc" id="L322">        int thisBeginIndex = 0;</span>
+<span class="fc" id="L323">        int thisEndIndex = 1;</span>
+<span class="fc" id="L324">        int[] result = new int[thisArray.length];</span>
+        while (true) {
+<span class="fc bfc" id="L326" title="All 2 branches covered.">            if (thisEndIndex &gt; thisArray.length) {</span>
+<span class="fc" id="L327">                break;</span>
+            }
+<span class="fc" id="L329">            MyBigInteger longDividend = divideCheckLongDividend(thisBeginIndex, thisEndIndex, dividend.array);</span>
+<span class="fc" id="L330">            int times = 0;</span>
+<span class="fc bfc" id="L331" title="All 2 branches covered.">            while (longDividend.compareTo(x) &gt;= 0) {</span>
+<span class="fc" id="L332">                longDividend = longDividend.subtract(x);</span>
+<span class="fc" id="L333">                times++;</span>
+            }
+<span class="fc" id="L335">            thisBeginIndex = divideCheckForSubtract(dividend, longDividend, thisBeginIndex, thisEndIndex);</span>
+<span class="fc" id="L336">            result[thisEndIndex - 1] = times;</span>
+<span class="fc" id="L337">            thisEndIndex++;</span>
+<span class="fc" id="L338">        }</span>
+<span class="fc" id="L339">        return result;</span>
+    }
+
+    private static int divideCheckForSubtract(MyBigInteger dividend, MyBigInteger longDividend, int thisBeginIndex, int thisEndIndex) {
+<span class="fc bfc" id="L343" title="All 2 branches covered.">        if (longDividend.compareTo(MyBigInteger.ZERO) == 0) {</span>
+<span class="fc" id="L344">            thisBeginIndex = thisEndIndex;</span>
+        } else {
+<span class="fc" id="L346">            int digitsLeftFromSubtract = longDividend.array.length;</span>
+<span class="fc" id="L347">            thisBeginIndex = thisEndIndex - digitsLeftFromSubtract;</span>
+<span class="fc" id="L348">            Utils.arrayCopyInt(longDividend.array, 0, dividend.array, thisBeginIndex, digitsLeftFromSubtract);</span>
+        }
+<span class="fc" id="L350">        return thisBeginIndex;</span>
+    }
+
+    private static MyBigInteger divideCheckLongDividend(int thisBeginIndex, int thisEndIndex, int[] dividendArray) {
+<span class="fc" id="L354">        int[] longDividerArray = new int[thisEndIndex - thisBeginIndex];</span>
+<span class="fc" id="L355">        Utils.arrayCopyInt(dividendArray, thisBeginIndex, longDividerArray, 0, thisEndIndex - thisBeginIndex);</span>
+<span class="fc" id="L356">        MyBigInteger longDividend = new MyBigInteger(longDividerArray);</span>
+<span class="fc" id="L357">        return longDividend;</span>
+    }
+
+    /**
+     * Does shiftRight operation (multiply by 2) x times.
+     *
+     * @param x how many times is shifted
+     * @return new MyBigInteger with the new value.
+     */
+    public MyBigInteger shiftLeft(int x) {
+<span class="fc" id="L367">        MyBigInteger result = new MyBigInteger(toString());</span>
+<span class="fc bfc" id="L368" title="All 2 branches covered.">        for (int i = 0; i &lt; x; i++) {</span>
+<span class="fc" id="L369">            result = result.shiftLeftOnce();</span>
+        }
+<span class="fc" id="L371">        return result;</span>
+    }
+
+    /**
+     * Does shiftRight operation (divide by 2) x times.
+     *
+     * @param x how many times is shifted
+     * @return new MyBigInteger with the new value.
+     */
+    public MyBigInteger shiftRight(int x) {
+<span class="fc" id="L381">        MyBigInteger result = new MyBigInteger(toString());</span>
+<span class="fc bfc" id="L382" title="All 2 branches covered.">        for (int i = 0; i &lt; x; i++) {</span>
+<span class="fc" id="L383">            result = result.shiftRightOnce();</span>
+        }
+<span class="fc" id="L385">        return result;</span>
+    }
+
+    private MyBigInteger shiftLeftOnce() {
+<span class="fc" id="L389">        boolean bit = false;</span>
+<span class="fc" id="L390">        int[] newArray = shiftLeftCopyArray(this.array);</span>
+<span class="fc bfc" id="L391" title="All 2 branches covered.">        for (int i = newArray.length - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L392">            newArray[i] = newArray[i] &lt;&lt; 1;</span>
+<span class="fc bfc" id="L393" title="All 2 branches covered.">            boolean tmp = newArray[i] &gt; 9;</span>
+<span class="fc bfc" id="L394" title="All 2 branches covered.">            if (tmp) {</span>
+<span class="fc" id="L395">                newArray[i] -= 10;</span>
+            }
+<span class="fc bfc" id="L397" title="All 2 branches covered.">            if (bit) {</span>
+<span class="fc" id="L398">                newArray[i]++;</span>
+            }
+<span class="fc" id="L400">            bit = tmp;</span>
+        }
+<span class="fc" id="L402">        return new MyBigInteger(newArray);</span>
+    }
+
+    private int[] shiftLeftCopyArray(int[] thisArray) {
+        int[] newArray;
+<span class="fc bfc" id="L407" title="All 2 branches covered.">        if (thisArray[0] &gt;= 5) {</span>
+<span class="fc" id="L408">            newArray = new int[thisArray.length + 1];</span>
+<span class="fc" id="L409">            Utils.arrayCopyInt(thisArray, 0, newArray, 1, thisArray.length);</span>
+        } else {
+<span class="fc" id="L411">            newArray = new int[thisArray.length];</span>
+<span class="fc" id="L412">            Utils.arrayCopyInt(thisArray, 0, newArray, 0, thisArray.length);</span>
+        }
+<span class="fc" id="L414">        return newArray;</span>
+    }
+
+    private MyBigInteger shiftRightOnce() {
+<span class="fc" id="L418">        boolean bit = false;</span>
+<span class="fc bfc" id="L419" title="All 4 branches covered.">        if (this.array[0] == 1 &amp;&amp; this.array.length == 1) {</span>
+<span class="fc" id="L420">            return MyBigInteger.ZERO;</span>
+        }
+<span class="fc" id="L422">        int[] newArray = shiftRightCopyArray(this.array);</span>
+<span class="fc bfc" id="L423" title="All 2 branches covered.">        if (this.array.length != newArray.length) {</span>
+<span class="fc" id="L424">            bit = true;</span>
+        }
+<span class="fc bfc" id="L426" title="All 2 branches covered.">        for (int i = 0; i &lt; newArray.length; i++) {</span>
+<span class="fc bfc" id="L427" title="All 2 branches covered.">            boolean tmp = newArray[i] % 2 == 1;</span>
+<span class="fc" id="L428">            newArray[i] = newArray[i] &gt;&gt; 1;</span>
+<span class="fc bfc" id="L429" title="All 2 branches covered.">            if (bit) {</span>
+<span class="fc" id="L430">                newArray[i] += 5;</span>
+            }
+<span class="fc" id="L432">            bit = tmp;</span>
+        }
+<span class="fc" id="L434">        return new MyBigInteger(newArray);</span>
+    }
+
+    private int[] shiftRightCopyArray(int[] thisArray) {
+        int[] newArray;
+<span class="fc bfc" id="L439" title="All 2 branches covered.">        if (thisArray[0] == 1) {</span>
+<span class="fc" id="L440">            newArray = new int[thisArray.length - 1];</span>
+<span class="fc" id="L441">            Utils.arrayCopyInt(thisArray, 1, newArray, 0, newArray.length);</span>
+        } else {
+<span class="fc" id="L443">            newArray = new int[thisArray.length];</span>
+<span class="fc" id="L444">            Utils.arrayCopyInt(thisArray, 0, newArray, 0, thisArray.length);</span>
+        }
+<span class="fc" id="L446">        return newArray;</span>
+    }
+
+    /**
+     * Equals checks from the MyBigIntegers array if it's the same.
+     *
+     * @param obj Another object to compare.
+     * @return true if another object is same.
+     */
+    @Override
+    public boolean equals(Object obj) {
+<span class="pc bpc" id="L457" title="1 of 2 branches missed.">        if (this == obj) {</span>
+<span class="nc" id="L458">            return true;</span>
+        }
+<span class="pc bpc" id="L460" title="1 of 2 branches missed.">        if (obj == null) {</span>
+<span class="nc" id="L461">            return false;</span>
+        }
+<span class="pc bpc" id="L463" title="1 of 2 branches missed.">        if (getClass() != obj.getClass()) {</span>
+<span class="nc" id="L464">            return false;</span>
+        }
+<span class="fc" id="L466">        final MyBigInteger other = (MyBigInteger) obj;</span>
+<span class="fc bfc" id="L467" title="All 2 branches covered.">        if (!Arrays.equals(this.array, other.array)) {</span>
+<span class="fc" id="L468">            return false;</span>
+        }
+<span class="fc" id="L470">        return true;</span>
+    }
+
+    /**
+     * Compares this with another MyBigInteger. Compares the MyBigIntegers
+     * arrays length. If they are same, compares the values.
+     *
+     * @param other MyBigInteger that is compared to this
+     * @return result of the comparison
+     */
+    @Override
+    public int compareTo(MyBigInteger other) {
+<span class="fc bfc" id="L482" title="All 2 branches covered.">        if (this.array.length &lt; other.array.length) {</span>
+<span class="fc" id="L483">            return -1;</span>
+        }
+<span class="fc bfc" id="L485" title="All 2 branches covered.">        if (this.array.length &gt; other.array.length) {</span>
+<span class="fc" id="L486">            return 1;</span>
+        }
+<span class="fc bfc" id="L488" title="All 2 branches covered.">        for (int i = 0; i &lt; this.array.length; i++) {</span>
+<span class="fc bfc" id="L489" title="All 2 branches covered.">            if (this.array[i] &lt; other.array[i]) {</span>
+<span class="fc" id="L490">                return -1;</span>
+            }
+<span class="fc bfc" id="L492" title="All 2 branches covered.">            if (this.array[i] &gt; other.array[i]) {</span>
+<span class="fc" id="L493">                return 1;</span>
+            }
+        }
+<span class="fc" id="L496">        return 0;</span>
+    }
+
+    /**
+     * Calculates how many bits are in the MyBigInteger value.
+     *
+     * @return number of bits.
+     */
+    public int bitLength() {
+<span class="fc" id="L505">        bits = getBitArray();</span>
+<span class="fc bfc" id="L506" title="All 4 branches covered.">        if (bits.length == 1 &amp;&amp; bits[0] == false) {</span>
+<span class="fc" id="L507">            return 0;</span>
+        }
+<span class="fc" id="L509">        return bits.length;</span>
+    }
+
+    private boolean[] getBitArray() {
+<span class="fc bfc" id="L513" title="All 2 branches covered.">        if (bits == null) {</span>
+<span class="fc" id="L514">            bits = toBitArray();</span>
+        }
+<span class="fc" id="L516">        return bits;</span>
+    }
+
+    private int[] byteArrayToIntArray(byte[] array) {
+<span class="fc" id="L520">        MyBigInteger result = MyBigInteger.ZERO;</span>
+<span class="fc" id="L521">        MyBigInteger bit = MyBigInteger.ONE;</span>
+<span class="fc bfc" id="L522" title="All 2 branches covered.">        for (int i = 0; i &lt; array.length; i++) {</span>
+<span class="fc bfc" id="L523" title="All 2 branches covered.">            for (int j = 0; j &lt; 8; j++) {</span>
+<span class="fc bfc" id="L524" title="All 2 branches covered.">                if (array[array.length - i - 1] % 2 == 1) {</span>
+<span class="fc" id="L525">                    result = result.add(bit);</span>
+                }
+<span class="fc" id="L527">                bit = bit.shiftLeftOnce();</span>
+<span class="fc" id="L528">                array[array.length - i - 1] /= 2;</span>
+            }
+        }
+<span class="fc" id="L531">        return result.array;</span>
+    }
+
+    private boolean[] toBitArray() {
+<span class="fc" id="L535">        boolean[] thisBits = new boolean[100];</span>
+<span class="fc" id="L536">        int index = 0;</span>
+<span class="fc" id="L537">        MyBigInteger toCheck = this;</span>
+<span class="fc bfc" id="L538" title="All 2 branches covered.">        while (toCheck.compareTo(MyBigInteger.ZERO) &gt; 0) {</span>
+<span class="fc bfc" id="L539" title="All 2 branches covered.">            if (index == thisBits.length) {</span>
+<span class="fc" id="L540">                boolean[] newBits = new boolean[thisBits.length * 2];</span>
+<span class="fc" id="L541">                Utils.arrayCopyBoolean(thisBits, 0, newBits, thisBits.length, thisBits.length);</span>
+<span class="fc" id="L542">                thisBits = newBits;</span>
+            }
+<span class="fc bfc" id="L544" title="All 2 branches covered.">            thisBits[thisBits.length - 1 - index] = toCheck.array[toCheck.array.length - 1] % 2 == 1;</span>
+<span class="fc" id="L545">            toCheck = toCheck.shiftRightOnce();</span>
+<span class="fc" id="L546">            index++;</span>
+        }
+<span class="fc" id="L548">        thisBits = removeFalseFromBeginning(thisBits);</span>
+<span class="fc" id="L549">        return thisBits;</span>
+    }
+
+    private boolean[] removeFalseFromBeginning(boolean[] thisBits) {
+<span class="pc bpc" id="L553" title="1 of 2 branches missed.">        for (int i = 0; i &lt;= thisBits.length; i++) {</span>
+<span class="fc bfc" id="L554" title="All 2 branches covered.">            if (i == thisBits.length) {</span>
+<span class="fc" id="L555">                return new boolean[1];</span>
+            }
+<span class="fc bfc" id="L557" title="All 2 branches covered.">            if (thisBits[i] == true) {</span>
+<span class="fc" id="L558">                boolean[] newBits = new boolean[thisBits.length - i];</span>
+<span class="fc" id="L559">                Utils.arrayCopyBoolean(thisBits, i, newBits, 0, newBits.length);</span>
+<span class="fc" id="L560">                thisBits = newBits;</span>
+<span class="fc" id="L561">                break;</span>
+            }
+        }
+<span class="fc" id="L564">        return thisBits;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

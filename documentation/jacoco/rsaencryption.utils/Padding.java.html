@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Padding.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">RsaEncryption</a> &gt; <a href="index.source.html" class="el_package">rsaencryption.utils</a> &gt; <span class="el_source">Padding.java</span></div><h1>Padding.java</h1><pre class="source lang-java linenums">package rsaencryption.utils;
+
+import java.security.SecureRandom;
+
+/**
+ * Class that is used to add padding into plaintext messages.
+ */
+<span class="nc" id="L8">public class Padding {</span>
+
+    /**
+     * Adds OAEP padding to the message. OAEP also hashes the message.
+     *
+     * Didn't get SHA-256 to work, ignore this.
+     *
+     * @param message String to be padded.
+     * @return OAEP Padded message.
+     */
+    public static String oaep(String message) {
+<span class="nc" id="L19">        int g = 256;</span>
+<span class="nc" id="L20">        byte[] r = new byte[2048 / 8];</span>
+<span class="nc" id="L21">        SecureRandom random = new SecureRandom();</span>
+<span class="nc" id="L22">        random.nextBytes(r);</span>
+<span class="nc" id="L23">        String paddedMessage = pad(message, g);</span>
+<span class="nc" id="L24">        byte[] messagebytes = paddedMessage.getBytes();</span>
+<span class="nc" id="L25">        byte[] gr = sha256(r);</span>
+<span class="nc" id="L26">        byte[] x = new byte[messagebytes.length];</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed.">        for (int i = 0; i &lt; messagebytes.length; i++) {</span>
+<span class="nc" id="L28">            x[i] = (byte) (messagebytes[i] ^ gr[i]);</span>
+        }
+<span class="nc" id="L30">        byte[] hmessagebytesgr = sha256(x);</span>
+<span class="nc" id="L31">        byte[] messagebytesgrrh = new byte[messagebytes.length];</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">        for (int i = 0; i &lt; messagebytes.length; i++) {</span>
+<span class="nc" id="L33">            messagebytesgrrh[i] = (byte) (r[i] ^ hmessagebytesgr[i]);</span>
+        }
+<span class="nc" id="L35">        return new String(messagebytesgrrh);</span>
+    }
+
+    private static String pad(String message, int g) {
+<span class="nc" id="L39">        int k1 = (g - message.getBytes().length * 8);</span>
+<span class="nc" id="L40">        String zeros = &quot;&quot;;</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        for (int i = 0; i &lt; k1 / 8; i++) {</span>
+<span class="nc" id="L42">            zeros += &quot;0&quot;;</span>
+        }
+<span class="nc" id="L44">        String message2 = message + zeros;</span>
+<span class="nc" id="L45">        System.out.println(&quot;bitSize: &quot; + k1 + &quot;  Zeros bitsize: &quot; + zeros.getBytes().length * 8 + &quot;  Message bitSize: &quot; + message.getBytes().length * 8);</span>
+<span class="nc" id="L46">        System.out.println(&quot;message with padding: \n&quot; + message2);</span>
+<span class="nc" id="L47">        return message2;</span>
+    }
+
+    private static byte[] sha256(byte[] bytes) {
+<span class="nc" id="L51">        int[] h0 = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};</span>
+<span class="nc" id="L52">        int[] k = initK();</span>
+<span class="nc" id="L53">        byte[][] chunks = bytesIntoChunks(bytes, bytes.length * 8 / 512, 512 / 8);</span>
+
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        for (int i = 0; i &lt; chunks.length; i++) {</span>
+<span class="nc" id="L56">            int[] w = new int[64];</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            for (int j = 0; j &lt; 16; j++) {</span>
+<span class="nc" id="L58">                w[j] = byteArrayToInt(chunks[i], j);</span>
+            }
+
+<span class="nc bnc" id="L61" title="All 2 branches missed.">            for (int j = 16; j &lt; 64; j++) {</span>
+<span class="nc" id="L62">                int s0 = (rotateRight(w[j - 15], 7)) ^ (rotateRight(w[j - 15], 18)) ^ (w[j - 15] &gt;&gt;&gt; 3);</span>
+<span class="nc" id="L63">                int s1 = (rotateRight(w[j - 2], 17)) ^ (rotateRight(w[j - 2], 19)) ^ (w[j - 2] &gt;&gt;&gt; 10);</span>
+<span class="nc" id="L64">                w[j] = w[j - 16] + s0 + w[j - 7] + s1;</span>
+            }
+<span class="nc" id="L66">            doMoreHash(h0, k, w);</span>
+        }
+
+<span class="nc" id="L69">        return createHashBytes(h0);</span>
+    }
+
+    private static byte[] createHashBytes(int[] h0) {
+<span class="nc" id="L73">        byte[] hash = new byte[32];</span>
+        
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        for (int i = 0; i &lt; 8; i++) {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            for (int j = 0; j &lt; 4; j++) {</span>
+<span class="nc" id="L77">                hash[i * 4 + j] = intToByteArray(h0[i])[j];</span>
+            }
+        }
+        
+<span class="nc" id="L81">        return hash;</span>
+    }
+
+    private static void doMoreHash(int[] h0, int[] k, int[] w) {
+<span class="nc" id="L85">        int a = h0[0];</span>
+<span class="nc" id="L86">        int b = h0[1];</span>
+<span class="nc" id="L87">        int c = h0[2];</span>
+<span class="nc" id="L88">        int d = h0[3];</span>
+<span class="nc" id="L89">        int e = h0[4];</span>
+<span class="nc" id="L90">        int f = h0[5];</span>
+<span class="nc" id="L91">        int g = h0[6];</span>
+<span class="nc" id="L92">        int h = h0[7];</span>
+
+<span class="nc" id="L94">        hashRotation(a, b, c, d, e, f, g, h, k, w);</span>
+
+<span class="nc" id="L96">        h0[0] += a;</span>
+<span class="nc" id="L97">        h0[1] += b;</span>
+<span class="nc" id="L98">        h0[2] += c;</span>
+<span class="nc" id="L99">        h0[3] += d;</span>
+<span class="nc" id="L100">        h0[4] += e;</span>
+<span class="nc" id="L101">        h0[5] += f;</span>
+<span class="nc" id="L102">        h0[6] += g;</span>
+<span class="nc" id="L103">        h0[7] += h;</span>
+<span class="nc" id="L104">    }</span>
+
+    private static void hashRotation(int a, int b, int c, int d, int e, int f, int g, int h, int[] k, int[] w) {
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        for (int j = 0; j &lt; 64; j++) {</span>
+<span class="nc" id="L108">            int s1 = rotateRight(e, 6) ^ rotateRight(e, 11) ^ rotateRight(e, 25);</span>
+<span class="nc" id="L109">            int ch = (e &amp; f) | ((~e) &amp; g);</span>
+<span class="nc" id="L110">            int temp1 = h + s1 + ch + k[j] + w[j];</span>
+<span class="nc" id="L111">            int s0 = rotateRight(a, 2) ^ rotateRight(a, 13) ^ rotateRight(a, 22);</span>
+<span class="nc" id="L112">            int maj = (a &amp; b) | (a &amp; c) | (b &amp; c);</span>
+<span class="nc" id="L113">            int temp2 = s0 + maj;</span>
+
+<span class="nc" id="L115">            h = g;</span>
+<span class="nc" id="L116">            g = f;</span>
+<span class="nc" id="L117">            f = e;</span>
+<span class="nc" id="L118">            e = d + temp1;</span>
+<span class="nc" id="L119">            d = c;</span>
+<span class="nc" id="L120">            c = b;</span>
+<span class="nc" id="L121">            b = a;</span>
+<span class="nc" id="L122">            a = temp1 + temp2;</span>
+        }
+<span class="nc" id="L124">    }</span>
+
+    private static int[] initK() {
+<span class="nc" id="L127">        int[] k = {</span>
+            0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+            0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+            0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+            0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+            0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+            0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+            0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+            0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
+<span class="nc" id="L136">        return k;</span>
+    }
+
+    private static byte[][] bytesIntoChunks(byte[] bytes, int firstBytes, int secondBytes) {
+<span class="nc" id="L140">        byte[][] chunks = new byte[firstBytes][secondBytes];</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        for (int i = 0; i &lt; chunks.length; i++) {</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">            for (int j = 0; j &lt; chunks[i].length; j++) {</span>
+<span class="nc" id="L143">                chunks[i][j] = bytes[i * 512 / 8 + j];</span>
+            }
+        }
+<span class="nc" id="L146">        return chunks;</span>
+    }
+
+    private static byte[] intToByteArray(int a) {
+<span class="nc" id="L150">        byte[] ret = new byte[4];</span>
+<span class="nc" id="L151">        ret[3] = (byte) (a &amp; 0xFF);</span>
+<span class="nc" id="L152">        ret[2] = (byte) ((a &gt;&gt; 8) &amp; 0xFF);</span>
+<span class="nc" id="L153">        ret[1] = (byte) ((a &gt;&gt; 16) &amp; 0xFF);</span>
+<span class="nc" id="L154">        ret[0] = (byte) ((a &gt;&gt; 24) &amp; 0xFF);</span>
+<span class="nc" id="L155">        return ret;</span>
+    }
+
+    private static int byteArrayToInt(byte[] b, int startingIndex) {
+<span class="nc" id="L159">        int value = 0;</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        for (int i = startingIndex; i &lt; startingIndex + 4; i++) {</span>
+<span class="nc" id="L161">            int shift = (4 - 1 - i) * 8;</span>
+<span class="nc" id="L162">            value += (b[i] &amp; 0x000000FF) &lt;&lt; shift;</span>
+        }
+<span class="nc" id="L164">        return value;</span>
+    }
+
+    private static int rotateRight(int word, int bitsAmount) {
+<span class="nc" id="L168">        int totalBits = 32;</span>
+<span class="nc" id="L169">        int c = (word &gt;&gt; bitsAmount) | (word &lt;&lt; (totalBits - bitsAmount));</span>
+<span class="nc" id="L170">        return c;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

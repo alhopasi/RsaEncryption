@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MyRandom.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">RsaEncryption</a> &gt; <a href="index.source.html" class="el_package">datastructures</a> &gt; <span class="el_source">MyRandom.java</span></div><h1>MyRandom.java</h1><pre class="source lang-java linenums">package datastructures;
+
+public class MyRandom {
+
+    private long m;
+    private long a;
+    private long c;
+    private long x;
+
+    /**
+     * Class to create random big numbers as byte array.
+     */
+<span class="fc" id="L13">    public MyRandom() {</span>
+<span class="fc" id="L14">        m = 32769;  //modulus, 0 &lt; m</span>
+<span class="fc" id="L15">        a = 25173;  // multiplier, 0 &lt; a &lt; m</span>
+<span class="fc" id="L16">        c = 13849;  // increment, 0 &lt; c &lt; m</span>
+<span class="fc" id="L17">        x = (System.currentTimeMillis() % m) / 2;  // start value (seed)</span>
+<span class="fc" id="L18">    }</span>
+
+    /**
+     * Used to create a byte array containing random bits.
+     *
+     * @param length How many bytes the created array is.
+     * @return Returns an array of random bytes.
+     */
+    public byte[] nextByteArray(int length) {
+<span class="fc" id="L27">        byte[] array = new byte[length];</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        for (int i = 0; i &lt; length; i++) {</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">            if (i == 0) {</span>
+<span class="fc" id="L30">                array[i] = nextByte(true);</span>
+            } else {
+<span class="fc" id="L32">                array[i] = nextByte(false);</span>
+            }
+        }
+<span class="fc" id="L35">        return array;</span>
+    }
+
+    /**
+     * Used to set seed for tests.
+     *
+     * @param seed the seed given
+     */
+    public void setSeed(long seed) {
+<span class="fc" id="L44">        this.x = seed / 2;</span>
+<span class="fc" id="L45">    }</span>
+
+    private double randomValue() {
+<span class="fc" id="L48">        x = (a * x + c) % m;</span>
+<span class="fc" id="L49">        return (x * 1.0 / m);</span>
+    }
+
+    private byte nextByte(boolean onlyPositive) {
+<span class="fc" id="L53">        int res = 0;</span>
+<span class="fc" id="L54">        int value = 1;</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        for (int i = 0; i &lt; 7; i++) {</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">            boolean bit = randomValue() &gt; 0.5;</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            if (bit) {</span>
+<span class="fc" id="L58">                res += value;</span>
+            }
+<span class="fc" id="L60">            value *= 2;</span>
+        }
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if (!onlyPositive) {</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">            boolean bit = randomValue() &gt; 0.5;</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">            if (bit) {</span>
+<span class="fc" id="L65">                res += value;</span>
+            }
+        }
+<span class="fc" id="L68">        return (byte) res;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

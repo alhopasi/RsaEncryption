@@ -1,0 +1,10 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+RsaEncryption,rsaencryption.utils,Utils,3,412,0,26,1,63,1,23,1,10
+RsaEncryption,rsaencryption.utils,Validators,6,74,1,13,2,28,2,13,1,7
+RsaEncryption,rsaencryption.io,IoController,50,284,4,12,11,45,4,10,0,6
+RsaEncryption,datastructures,MyPair,0,15,0,0,0,6,0,3,0,3
+RsaEncryption,datastructures,MyRandom,0,126,0,16,0,28,0,13,0,5
+RsaEncryption,datastructures,MyBigInteger,11,1292,5,131,4,270,5,99,0,36
+RsaEncryption,rsaencryption.domain,KeyGenerator,3,553,7,43,2,72,7,28,0,10
+RsaEncryption,rsaencryption.domain,PrivateKey,6,70,3,7,3,18,3,6,0,4
+RsaEncryption,rsaencryption.domain,PublicKey,6,70,3,7,3,18,3,6,0,4
